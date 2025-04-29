@@ -1,0 +1,346 @@
+@font-face {
+    font-family: 'ZCOOLKuaiLe'; /* 自定义字体名称 */
+    src: url('./fonts/ZhanKuKuaiLeTi2016XiuDingBan-1.ttf') format('truetype'); /* 字体文件路径 */
+}
+
+@font-face {
+    font-family: 'HuXiaoBoNanShenTi'; /* 自定义字体名称 */
+    src: url('./fonts/HuXiaoBoNanShenTi-2.otf') format('truetype'); /* 字体文件路径 */
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    font-size: 16px; /* 设置根字体大小，1rem = 16px */
+}
+
+body {
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    flex-direction: column; /* 垂直排列内容 */
+    height: 100vh; /* 页面高度占满视口 */
+    margin: 0; /* 去除默认外边距 */
+    background: rgba(219, 197, 158, 1);
+    position: relative; /* 为绝对定位的子元素提供参考 */
+    overflow: hidden; /* 防止溢出 */
+}
+
+h1 {
+    text-align: left;
+    font-size: 2.5rem; /* 使用 rem 单位 */
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 1.2; /* 行高 */
+    color: rgba(94, 59, 18, 1);
+    font-family: 'ZCOOLKuaiLe', sans-serif;
+    margin-bottom: 3rem; /* 与按钮之间的间距 */
+}
+h2 {
+    font-size: 2rem; /* 使用 rem 单位 */
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 1.2; /* 行高 */
+    color: black;
+    font-family: 'ZCOOLKuaiLe', sans-serif;
+}
+h3 {
+    position: absolute;
+    text-align: left;
+    top: 0%;
+    font-size: 2.5rem; /* 使用 rem 单位 */
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 1.2; /* 行高 */
+    color: rgba(94, 59, 18, 1);
+    font-family: 'ZCOOLKuaiLe', sans-serif;
+    margin-bottom: 3rem; /* 与按钮之间的间距 */
+}
+.daily-push {
+    animation: fadeIn 1s ease-in-out;
+    position: absolute; /* 使用绝对定位 */
+    top: 10rem; /* 距离页面顶部 5rem */
+    left: 50%; /* 水平居中 */
+    transform: translateX(-50%); /* 修正水平居中的偏移 */
+    font-family: 'HuXiaoBoNanShenTi', sans-serif; /* 使用胡晓波男神体 */
+    width: 80%; /* 文本框宽度占页面的 80% */
+    padding: 1rem; /* 内边距 */
+    background-color: rgba(255, 255, 255, 0.9); /* 背景色，带透明度 */
+    border: 1px solid rgba(94, 59, 18, 0.5); /* 边框颜色 */
+    border-radius: 0.5rem; /* 圆角 */
+    font-size: 1.2rem; /* 字体大小 */
+    color: rgb(2, 1, 0); /* 字体颜色 */
+    text-align: center; /* 文本居中 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+.button-container {
+    display: flex; /* 启用 Flexbox 布局 */
+    justify-content: center; /* 按钮水平居中 */
+    gap: 4rem; /* 按钮之间的间距 */
+    margin-top: 1rem; /* 与标题的间距 */
+}
+
+button {
+    font-family: 'ZCOOLKuaiLe', sans-serif; /* 使用站酷快乐体 */
+    padding: 0.5rem 1rem; /* 使用 rem 单位 */
+    font-size: 1rem; /* 按钮字体大小 */
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    background: #5E3B12;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 8rem; /* 按钮宽度 */
+    height: 3rem; /* 按钮高度 */
+}
+
+.register-btn {
+    background: #5E3B12; /* 注册按钮颜色 */
+}
+
+.login-btn {
+    background: #5E3B12; /* 登录按钮颜色 */
+}
+button:hover {
+    opacity: 0.9;
+}
+
+.image {
+    position: absolute;
+    border-radius: 0.6rem;
+}
+
+.image-weekend {
+    top: 0%; /* 距离顶部的百分比 */
+    left: 5%; /* 距离左侧的百分比 */
+    width: 12rem; /* 图片宽度 */
+    height: auto; /* 保持宽高比 */
+}
+
+.image-july {
+    bottom: 20%; /* 距离底部的百分比 */
+    right: 5%; /* 距离右侧的百分比 */
+    width: 8rem; /* 图片宽度 */
+    height: auto; /* 保持宽高比 */
+}
+
+.image-left {
+    top: 5%; /* 距离顶部的百分比 */
+    left: 5%; /* 距离左侧的百分比 */
+    width: 12rem; /* 图片宽度 */
+    height: auto; /* 保持宽高比 */
+    transform: rotate(-10deg);
+    border: 0.3rem solid rgba(94, 59, 18, 1);
+}
+
+.image-right {
+    bottom: 5%; /* 距离底部的百分比 */
+    right: 5%; /* 距离右侧的百分比 */
+    width: 12rem; /* 图片宽度 */
+    height: auto; /* 保持宽高比 */
+    transform: rotate(13deg);
+    border: 0.3rem solid #5E3B12;
+}
+
+.image-tree {
+    bottom: -2%; /* 距离顶部的百分比 */
+    left: 10%; /* 距离左侧的百分比 */
+    width: 12rem; /* 图片宽度 */
+    height: auto; /* 保持宽高比 */
+}
+
+.svg-image {
+    position: absolute; /* 使用绝对定位 */
+    bottom: -3rem; /* 距离底部 0 */
+    left: 22%; /* 距离左侧 20% */
+    width: 20rem; /* 调整宽度 */
+    height: auto; /* 保持宽高比 */
+}
+
+/* 弹窗背景 */
+.modal {
+    display: none; /* 初始隐藏 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* 弹窗内容 */
+.modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 30rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* 关闭按钮 */
+.close-btn, .close-btn2 {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #333;
+}
+
+.submit-btn {
+    background-color: #5E3B12; /* 提交按钮颜色 */
+    color: white;
+    padding: 0.5rem 1rem; /* 按钮内边距 */
+    border: none;
+    border-radius: 0.3rem; /* 圆角 */
+    cursor: pointer;
+    display: block; /* 将按钮设置为块级元素 */
+    margin: 2rem auto 0; /* 上下外边距，水平居中 */
+    text-align: center; /* 文本居中 */
+}
+form {
+display: flex;
+flex-direction: column; /* 垂直排列 */
+align-items: center; /* 水平居中 */
+gap: 1rem; /* 每个表单项之间的间距 */
+}
+
+.form-group {
+display: flex;
+justify-content: flex-start; /* 左对齐 */
+align-items: center; /* 垂直居中 */
+gap: 1rem; /* 标签和输入框之间的间距 */
+width: 100%; /* 占满父容器宽度 */
+max-width: 25rem; /* 限制最大宽度 */
+}
+
+label {
+flex: 0 0 6rem; /* 固定标签宽度 */
+text-align: right; /* 标签文字右对齐 */
+}
+
+input {
+flex: 1; /* 输入框占据剩余空间 */
+padding: 0.5rem;
+border: 1px solid #ccc;
+border-radius: 0.3rem;
+font-size: 1rem;
+}
+
+/* 提示框样式 */
+.toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+    z-index: 1000;
+}
+
+/* 显示提示框 */
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 子页面入口容器 */
+.subpage-container {
+    display: flex; /* 使用 Flexbox 布局 */
+    justify-content: space-around; /* 子页面框水平均匀分布 */
+    align-items: center; /* 垂直居中 */
+    position: absolute;
+    bottom: 5rem; /* 距离页面底部 5rem */
+    width: 100%; /* 占满页面宽度 */
+    padding: 1rem; /* 内边距 */
+}
+
+/* 子页面框 */
+.subpage {
+    text-decoration: none; /* 移除下划线 */
+    display: flex;
+    flex-direction: column; /* 垂直排列内容 */
+    align-items: center; /* 水平居中 */
+    justify-content: center; /* 垂直居中 */
+    width: 10rem; /* 子页面框宽度 */
+    height: 10rem; /* 子页面框高度 */
+    background-color: rgba(255, 255, 255, 0.9); /* 背景色，带透明度 */
+    border: 3px solid rgba(94, 59, 18, 1); /* 边框颜色和宽度 */
+    border-radius: 0.5rem; /* 圆角 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    text-align: center; /* 文本居中 */
+    font-family: 'HuXiaoBoNanShenTi', sans-serif; /* 修改为胡晓波男神体 */
+    font-size: 1.5rem; /* 调大字体大小 */
+    color: rgba(94, 59, 18, 1); /* 字体颜色 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    transition: transform 0.3s ease; /* 添加缩放动画 */
+}
+
+/* 子页面框悬停效果 */
+.subpage:hover {
+    transform: scale(1.05); /* 鼠标悬停时放大 */
+}
+
+
+/* 子页面框中的 logo */
+.subpage svg {
+    width: 4rem; /* 调整 logo 的宽度 */
+    height: 4rem; /* 调整 logo 的高度 */
+    margin-bottom: 0.5rem; /* logo 与文字的间距 */
+}
+
+/* main的退出按钮 */
+/* 页面样式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* 退出按钮样式 */
+.logout-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* 子页面容器样式 */
+.subpage-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
