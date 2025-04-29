@@ -1,5 +1,6 @@
 // API 基础配置
 const API_BASE_URL = 'http://localhost:5000';
+let jwtToken = localStorage.getItem('jwt_token'); // 从本地存储获取 JWT Token
 
 // 获取元素
 const registerBtn = document.querySelector('.register-btn');
