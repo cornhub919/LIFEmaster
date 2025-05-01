@@ -117,7 +117,7 @@ async function handleRegister() {
             showToast('注册成功！');
             registerModal.style.display = 'none';
             // 自动填充登录邮箱
-            loginForm.elements.username.value = `${username}@example.com`;
+            loginForm.elements.username.value = username;
             loginModal.style.display = 'flex';
         } else {
             showToast(result.msg || '注册失败', false);
