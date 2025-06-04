@@ -52,5 +52,12 @@ async function logout() {
     }
 }
 
+function checkLoginStatus() {
+    if (jwtToken) {
+        // 如果已登录，直接跳转到主页面
+        window.location.href = 'main2.html'; // 替换为 main2.html
+    }
+}
+
 
 

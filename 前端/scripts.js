@@ -138,7 +138,7 @@ async function handleRegister() {
 // 登录表单提交后跳转到主页面
 loginForm.addEventListener('submit', (event) => {
     event.preventDefault(); // 阻止默认表单提交行为
-    // window.location.href = 'main.html'; // 跳转到主页面
+    // window.location.href = 'main2.html'; // 跳转到主页面
     // showToast('登录成功！'); // 显示提示框
     handleLogin(); // 调用异步处理函数
     
@@ -171,7 +171,7 @@ async function handleLogin() {
             localStorage.setItem('jwt_token', jwtToken);
             showToast('登录成功！');
             setTimeout(() => {
-                window.location.href = 'main.html';
+                window.location.href = 'main2.html'; // 跳转到 main2.html
             }, 1000);
         } else {
             showToast(result.msg || '登录失败', false);
@@ -193,7 +193,7 @@ async function handleLogin() {
 function checkLoginStatus() {
     if (jwtToken) {
         // 如果已登录，直接跳转到主页面
-        window.location.href = 'main.html';
+        window.location.href = 'main2.html';
     }
 }
 

@@ -170,24 +170,7 @@
         </section>
     </main>
 
-    <!-- 页脚 -->
-    <footer class="bg-primary text-white py-8">
-        <div class="container mx-auto px-4 text-center">
-            <p class="mb-4">© 2025 LifeMaster. 记录生活，掌控人生。</p>
-            <div class="flex justify-center space-x-6 mb-6">
-                <a href="#" class="text-white/80 hover:text-accent transition-colors">
-                    <i class="fa-brands fa-weibo text-xl"></i>
-                </a>
-                <a href="#" class="text-white/80 hover:text-accent transition-colors">
-                    <i class="fa-brands fa-wechat text-xl"></i>
-                </a>
-                <a href="#" class="text-white/80 hover:text-accent transition-colors">
-                    <i class="fa-brands fa-github text-xl"></i>
-                </a>
-            </div>
-            <p class="text-white/60 text-sm">用科技记录生活，让每一天都有意义</p>
-        </div>
-    </footer>
+
 
     <!-- 提示框 -->
     <div id="toast" class="toast fixed bottom-6 right-6 bg-dark text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-500 z-50 flex items-center">
@@ -196,26 +179,14 @@
     </div>
 
     <script>
-        // 导航栏滚动效果
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 10) {
-                navbar.classList.add('py-2');
-                navbar.classList.remove('py-3');
-            } else {
-                navbar.classList.add('py-3');
-                navbar.classList.remove('py-2');
-            }
-        });
+     
 
         // 退出登录功能
         const logoutBtn = document.getElementById('logoutBtn');
         logoutBtn.addEventListener('click', () => {
-            showToast('已成功退出登录', 'fa-sign-out-alt');
-            
-            // 模拟退出登录的延迟跳转
+            showToast('已成功退出登录', 'sign-out-alt');
             setTimeout(() => {
-                window.location.href = 'login.html';
+                window.location.href = 'sign_in.html'; // 跳转到 sign_in.html
             }, 1500);
         });
 
@@ -246,4 +217,3 @@
     </script>
 </body>
 </html>
-    

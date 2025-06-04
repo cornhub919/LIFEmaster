@@ -11,12 +11,12 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#5E3B12',
-                        secondary: '#8B5A2B',
-                        neutral: '#F5F5DC',
-                        accent: '#A0522D',
-                        completed: '#A9A9A9',
-                        urgent: '#FF4500',
+                        primary: '#5E3B12',  // 主色调（深棕色）
+                        secondary: '#8B5A2B', // 辅助色（浅棕色）
+                        neutral: '#F5F5DC',   // 背景色（浅米色）
+                        accent: '#A0522D',    // 强调色（金棕色）
+                        completed: '#A9A9A9', // 已完成任务的文本颜色（灰色）
+                        urgent: '#FF4500',    // 紧急任务的颜色（橙色红）
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -28,7 +28,7 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .content-auto {
-                content-visibility: auto;
+                content-visibility: auto; 
             }
             .task-shadow {
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
