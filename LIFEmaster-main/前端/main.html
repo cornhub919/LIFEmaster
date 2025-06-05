@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>LifeMaster</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h3>欢迎使用LifeMaster<br>——电子手账，记录生活确幸</h3>
+        <div class="daily-push">生活就像海洋</div>
+        <!-- 退出登录按钮 -->
+        <button class="logout-btn">退出登录</button>
+        <!-- 子页面入口 -->
+        <div class="subpage-container">
+            <a href="handbook.html" class="subpage">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="112" height="119" viewBox="0 0 112 119" fill="none">
+                    <path fill-rule="evenodd" fill="#5E3B12" d="M72.8 0L84 0L84 11.9L106.4 11.9C109.492 11.9 112 14.5644 112 17.85L112 113.05C112 116.336 109.492 119 106.4 119L5.6 119C2.50768 119 0 116.336 0 113.05L0 17.85C0 14.5644 2.50768 11.9 5.6 11.9L28 11.9L28 0L39.2 0L39.2 11.9L72.8 11.9L72.8 0ZM72.8 23.8L72.8 35.7L84 35.7L84 23.8L100.8 23.8L100.8 47.6L11.2 47.6L11.2 23.8L28 23.8L28 35.7L39.2 35.7L39.2 23.8L72.8 23.8ZM11.2 59.5001L100.8 59.5001L100.8 107.1L11.2 107.1L11.2 59.5001ZM33.6 71.4L33.6 83.3L22.4 83.3L22.4 71.4L33.6 71.4ZM50.4 83.3L61.6 83.3L61.6 71.4L50.4 71.4L50.4 83.3ZM78.4 71.4L78.4 83.3L89.6 83.3L89.6 71.4L78.4 71.4Z"></path>
+                </svg>
+                <p>手账</p>
+            </a>
+            <a href="todolist.html" class="subpage">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="85.9989013671875" height="91.00119018554688" viewBox="0 0 85.9989013671875 91.00119018554688" fill="none">
+                    <path fill-rule="evenodd" fill="#5E3B12" d="M14.33 16.06L0 16.06L0 0L14.33 0L14.33 16.06ZM85.9989 13.3865L23.8889 13.3865L23.8889 2.6765L85.9989 2.6765L85.9989 13.3865ZM14.33 53.5306L0 53.5306L0 37.4706L14.33 37.4706L14.33 53.5306ZM23.8889 50.8571L85.9989 50.8571L85.9989 40.1471L23.8889 40.1471L23.8889 50.8571ZM14.33 91.0012L0 91.0012L0 74.9412L14.33 74.9412L14.33 91.0012ZM23.8889 88.3277L85.9989 88.3277L85.9989 77.6177L23.8889 77.6177L23.8889 88.3277Z"></path>
+                </svg>
+                <p>ToDoList</p>
+            </a>
+            <a href="accounting.html" class="subpage">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131" height="120" viewBox="0 0 131 120" fill="none">
+                    <path fill-rule="evenodd" fill="#5E3B12" d="M131 60C131 26.862 101.676 0 65.5 0C29.3244 0 0 26.862 0 60C0 93.138 29.3244 120 65.5 120C101.676 120 131 93.138 131 60ZM117.9 60C117.9 33.4906 94.4395 12 65.5 12C36.5605 12 13.1 33.4906 13.1 60C13.1 86.5094 36.5605 108 65.5 108C94.4395 108 117.9 86.5094 117.9 60ZM65.5 39.504L51.61 26.784L42.31 35.244L56.26 48.024L39.3 48.024L39.3 60.024L58.95 60.024L58.95 66.024L39.3 66.024L39.3 78.024L58.95 78.024L58.95 90.024L72.05 90.024L72.05 78.024L91.7 78.024L91.7 66.024L72.05 66.024L72.05 60.024L91.7 60.024L91.7 48.024L74.74 48.024L88.69 35.244L79.39 26.784L65.5 39.504Z"></path>
+                </svg>
+                <p>记账</p>
+            </a>
+        </div>
+        <div id="toast" class="toast"></div>
+    </body>
+    <!-- 提示框 -->
+    
+    <script src="main.js"></script> <!-- 引入 Vue.js -->
+</html>
