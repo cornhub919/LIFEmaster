@@ -1,0 +1,53 @@
+# 环境变量文件
+.env
+.env.local
+.env.production
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Flask 实例文件夹
+instance/
+
+# 数据库迁移文件（如果需要版本控制可以删除此行）
+migrations/
+
+# 日志文件
+*.log
+logs/
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 依赖文件
+node_modules/
+venv/
+env/
+
+# 测试覆盖率
+.coverage
+htmlcov/
+
+# 构建输出
+dist/
+build/
+*.egg-info/
+
+# 备份文件
+*.bak
+*.tmp
