@@ -35,8 +35,9 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
     return response
 
-# 数据库配置
+# 数据库配置 - 支持云部署
 app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.getenv('DATABASE_URL') or  # 优先使用云数据库URL
     f"mysql+pymysql://{os.getenv('DB_USER', 'root')}:{os.getenv('DB_PASSWORD', 'password')}"
     f"@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'lifemaster')}"
 )
@@ -868,9 +869,28 @@ def delete_category(category_id):
         app.logger.error(f"删除分类失败: {str(e)}")
         return jsonify({"code": -1, "msg": f"删除分类失败: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    # 创建所有数据库表
-    with app.app_context():
+@app.route('/api/admin/init-db', methods=['POST'])
+def init_database():
+    """初始化MySQL数据库（仅限首次部署使用）"""
+    try:
         db.create_all()
-    
-    app.run(debug=True)
+        return jsonify({"code": 0, "msg": "MySQL数据库初始化成功"})
+    except Exception as e:
+        return jsonify({"code": -1, "msg": f"初始化失败: {str(e)}"}), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """健康检查接口"""
+    return jsonify({
+        "code": 0,
+        "msg": "服务运行正常",
+        "data": {
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    })
+
+if __name__ == '__main__':
+    # 修改为云部署配置
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
