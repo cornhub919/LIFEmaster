@@ -891,13 +891,6 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    # 修改为云部署配置
+    # 修改为云部署配置 - 移除有问题的gunicorn调用
     port = int(os.environ.get('PORT', 5000))
-    # 生产环境使用gunicorn，开发环境使用Flask内置服务器
-    if os.environ.get('RAILWAY_ENVIRONMENT'):
-        # Railway环境，使用gunicorn
-        import subprocess
-        subprocess.run(['gunicorn', '--bind', f'0.0.0.0:{port}', 'app:app'])
-    else:
-        # 本地环境
-        app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)
