@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeMaster - ToDoList</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5E3B12',
+                        secondary: '#8B5A2B',
+                        neutral: '#F5F5DC',
+                        accent: '#A0522D',
+                        completed: '#A9A9A9',
+                        urgent: '#FF4500',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .task-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            .slide-up {
+                animation: slideUp 0.3s ease-out;
+            }
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(255, 69, 0, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(255, 69, 0, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 69, 0, 0); }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral via-neutral to-amber-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- 顶部导航卡片 -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10">
+            <div class="flex items-center gap-6">
+                <button id="back-btn" class="group flex items-center justify-center w-12 h-12 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <i class="fa-solid fa-arrow-left text-lg group-hover:translate-x-0.5 transition-transform duration-300"></i>
+                </button>
+                <div class="flex-1">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-primary flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-list-check text-xl"></i>
+                        </div>
+                        ToDoList
+                    </h1>
+                    <p class="text-gray-600 mt-2 text-lg">记录你的日常任务，保持高效生活</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加新任务区域 -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10 slide-up">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-white text-sm"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-primary">添加新任务</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <input 
+                    type="text" 
+                    id="new-task-input" 
+                    placeholder="输入你的任务..." 
+                    class="lg:col-span-2 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white/80 text-lg placeholder-gray-400"
+                >
+                <input 
+                    type="datetime-local" 
+                    id="new-task-deadline" 
+                    placeholder="年/月/日 时:分"
+                    class="px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white/80 text-lg"
+                >
+                <button 
+                    id="add-task-btn" 
+                    class="lg:col-span-3 bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center text-lg"
+                >
+                    <i class="fa-solid fa-plus mr-3"></i>添加任务
+                </button>
+            </div>
+        </div>
+
+        <!-- 任务列表区域 -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10 fade-in">
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-tasks text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-primary">我的任务</h2>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-2">
+                    <button id="filter-all" class="filter-btn bg-primary text-white px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">全部</button>
+                    <button id="filter-active" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl transition-colors font-medium whitespace-nowrap">进行中</button>
+                    <button id="filter-completed" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl transition-colors font-medium whitespace-nowrap">已完成</button>
+                </div>
+            </div>
+            
+            <!-- 任务统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-600 text-sm font-medium">总任务</p>
+                            <p class="text-2xl font-bold text-blue-700" id="total-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-list text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 text-sm font-medium">已完成</p>
+                            <p class="text-2xl font-bold text-green-700" id="completed-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-check-circle text-green-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-600 text-sm font-medium">即将截止</p>
+                            <p class="text-2xl font-bold text-orange-700" id="urgent-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-clock text-orange-500 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量操作区域 -->
+            <div class="flex items-center gap-4 mb-6 bg-gray-50 rounded-xl px-5 py-3 border border-gray-200">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="select-all-tasks" class="w-5 h-5 accent-primary rounded focus:ring-primary border-gray-300">
+                    <span class="text-gray-700 font-medium">全选任务</span>
+                </label>
+                <button id="delete-selected-btn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2 rounded-lg transition-all duration-300 font-medium shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trash text-sm"></i>批量删除
+                </button>
+            </div>
+            
+            <!-- 任务列表 -->
+            <ul id="task-list" class="space-y-3">
+                <!-- 任务项会通过JavaScript动态添加 -->
+            </ul>
+            
+            <!-- 空状态 -->
+            <div id="empty-state" class="py-16 text-center">
+                <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-clipboard-list text-4xl text-gray-400"></i>
+                </div>
+                <p class="text-xl text-gray-500 font-medium">暂无任务</p>
+                <p class="text-gray-400 mt-2">添加一个新任务开始你的一天吧</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑任务模态框 -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <h3 class="text-xl font-semibold text-primary mb-4">编辑任务</h3>
+            <input 
+                type="text" 
+                id="edit-task-input" 
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary mb-4"
+            >
+            <input 
+                type="datetime-local" 
+                id="edit-task-deadline" 
+                placeholder="年/月/日 时:分"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary mb-4"
+            >
+            <div class="flex justify-end gap-3">
+                <button id="cancel-edit-btn" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">取消</button>
+                <button id="save-edit-btn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-16 opacity-0 transition-all duration-500 z-50"></div>
+
+    <!-- 自定义确认对话框 - 提高z-index -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex flex-col items-center mb-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center" id="confirm-title">确认操作</h3>
+            </div>
+            <div class="mb-6 text-center">
+                <p class="text-sm text-gray-700 leading-relaxed" id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知中心 -->
+    <div id="notification-center" class="fixed top-4 right-4 max-w-xs w-full z-50"></div>
+
+    <script src="api.js"></script>
+    <script>
+    // DOM 元素
+    const taskList = document.getElementById('task-list');
+    const newTaskInput = document.getElementById('new-task-input');
+    const newTaskDeadline = document.getElementById('new-task-deadline');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const emptyState = document.getElementById('empty-state');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const totalTasksElement = document.getElementById('total-tasks');
+    const completedTasksElement = document.getElementById('completed-tasks');
+    const urgentTasksElement = document.getElementById('urgent-tasks');
+
+    let allTasks = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 返回按钮事件绑定
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) {
+            backBtn.onclick = function() {
+                window.location.replace('main.html');
+            };
+        }
+        
+        // 设置日期时间输入框的中文提示
+        const datetimeInputs = document.querySelectorAll('input[type="datetime-local"]');
+        datetimeInputs.forEach(input => {
+            input.setAttribute('data-placeholder', '年/月/日 时:分');
+            
+            if (!input.value) {
+                input.style.color = '#9CA3AF';
+                input.setAttribute('title', '年/月/日 时:分');
+            }
+            
+            input.addEventListener('focus', function() {
+                if (!this.value) {
+                    this.style.color = '#000';
+                }
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.style.color = '#9CA3AF';
+                }
+            });
+        });
+        
+        loadTasksFromAPI();
+        addTaskBtn.addEventListener('click', addTaskToAPI);
+        newTaskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTaskToAPI();
+        });
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentFilter = e.target.id.replace('filter-', '');
+                updateFilterButtons();
+                renderTasks();
+            });
+        });
+        const selectAllBox = document.getElementById('select-all-tasks');
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+        selectAllBox.addEventListener('change', function() {
+            document.querySelectorAll('.select-task-checkbox').forEach(cb => {
+                cb.checked = selectAllBox.checked;
+            });
+        });
+        deleteSelectedBtn.addEventListener('click', async function() {
+            const checked = Array.from(document.querySelectorAll('.select-task-checkbox:checked'));
+            if (checked.length === 0) {
+                showToast('请先选择要删除的任务', 'error');
+                return;
+            }
+            
+            showConfirm(
+                '批量删除任务',
+                `确定要删除选中的 ${checked.length} 个任务吗？此操作不可恢复。`,
+                async () => {
+                    for (const cb of checked) {
+                        await deleteTask(cb.getAttribute('data-task-id'));
+                    }
+                    loadTasksFromAPI();
+                    selectAllBox.checked = false;
+                    showToast(`成功删除 ${checked.length} 个任务`, 'success');
+                }
+            );
+        });
+    });
+
+    async function loadTasksFromAPI() {
+        const response = await apiRequest('/api/tasks');
+        if (response && response.ok) {
+            const data = await response.json();
+            allTasks = data.data.tasks;
+            renderTasks();
+        } else {
+            showToast('加载任务失败', 'error');
+        }
+    }
+
+    async function addTaskToAPI() {
+        const taskText = newTaskInput.value.trim();
+        const deadline = newTaskDeadline.value;
+        if (!taskText) {
+            showToast('请输入任务内容', 'error');
+            return;
+        }
+        try {
+            console.log('准备添加任务:', taskText, deadline);
+            console.log('日期原始值:', deadline);
+            
+            const response = await addTask(taskText, deadline || null);
+            
+            if (response.ok) {
+                // 清空输入框
+                newTaskInput.value = '';
+                newTaskDeadline.value = '';
+                // 立即刷新
+                loadTasksFromAPI();
+                showToast('任务添加成功', 'success');
+            } else {
+                // 尝试解析错误信息
+                try {
+                    const errorData = await response.json();
+                    showToast('添加失败: ' + (errorData.msg || '服务器错误'), 'error');
+                    console.error('服务器返回错误:', errorData);
+                } catch (e) {
+                    showToast(`添加失败: ${response.status} ${response.statusText}`, 'error');
+                }
+            }
+        } catch (error) {
+            console.error('添加任务出错:', error);
+            showToast('添加任务失败: ' + (error.message || '未知错误'), 'error');
+        }
+    }
+
+    async function toggleTaskStatusAPI(taskId, completed) {
+        await toggleTask(taskId, completed);
+        loadTasksFromAPI();
+    }
+
+    async function deleteTaskAPI(taskId) {
+        showConfirm(
+            '删除任务',
+            '确定要删除这个任务吗？此操作不可恢复。',
+            async () => {
+                await deleteTask(taskId);
+                loadTasksFromAPI();
+            }
+        );
+    }
+
+    function renderTasks() {
+        taskList.innerHTML = '';
+        let filteredTasks = allTasks;
+        if (currentFilter === 'active') filteredTasks = allTasks.filter(t => !t.completed);
+        if (currentFilter === 'completed') filteredTasks = allTasks.filter(t => t.completed);
+        if (filteredTasks.length === 0) {
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+        filteredTasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = 'task-item fade-in flex items-center group hover:bg-gray-50 rounded-lg px-2 py-1 transition';
+            li.innerHTML = `
+                <input type="checkbox" class="select-task-checkbox mr-3 accent-primary scale-125 rounded focus:ring-primary border-gray-300 group-hover:border-primary transition" data-task-id="${task.id}">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg task-shadow hover:shadow-md transition-shadow bg-white group-hover:bg-neutral/50">
+                        <div class="flex items-center">
+                            <input type="checkbox" class="task-checkbox h-5 w-5 text-primary rounded focus:ring-primary mr-3 cursor-pointer" ${task.completed ? 'checked' : ''}>
+                            <div class="flex-grow">
+                                <span class="task-text block break-words ${task.completed ? 'text-completed line-through' : 'text-gray-800'}">${task.text}</span>
+                                <span class="task-deadline text-xs text-gray-500 mt-1 block">${task.deadline ? '截止时间: ' + new Date(task.deadline).toLocaleString() : '无截止时间'}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="delete-task-btn text-accent hover:text-primary transition-colors"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            li.querySelector('.task-checkbox').addEventListener('change', (e) => toggleTaskStatusAPI(task.id, e.target.checked));
+            li.querySelector('.delete-task-btn').addEventListener('click', () => deleteTaskAPI(task.id));
+            taskList.appendChild(li);
+        });
+        updateTaskStats();
+    }
+
+    function updateFilterButtons() {
+        filterButtons.forEach(btn => {
+            const filter = btn.id.replace('filter-', '');
+            if (filter === currentFilter) {
+                btn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                btn.classList.add('bg-primary', 'text-white');
+            } else {
+                btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                btn.classList.remove('bg-primary', 'text-white');
+            }
+        });
+    }
+
+    function updateTaskStats() {
+        const total = allTasks.length;
+        const completed = allTasks.filter(t => t.completed).length;
+        const urgent = allTasks.filter(t => !t.completed && t.deadline && (new Date(t.deadline) - new Date())/(1000*60*60*24) <= 2).length;
+        totalTasksElement.textContent = total;
+        completedTasksElement.textContent = completed;
+        urgentTasksElement.textContent = urgent;
+    }
+
+    // 自定义确认对话框
+    function showConfirm(title, message, okCallback, cancelCallback = null) {
+        const modal = document.getElementById('confirm-modal');
+        const titleElement = document.getElementById('confirm-title');
+        const messageElement = document.getElementById('confirm-message');
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+        
+        titleElement.textContent = title;
+        messageElement.innerHTML = message;
+        
+        // 移除之前的事件监听器
+        const newOkBtn = okBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        // 添加新的事件监听器
+        newOkBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            if (okCallback) okCallback();
+        });
+        
+        newCancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            if (cancelCallback) cancelCallback();
+        });
+        
+        // 显示模态框
+        modal.classList.remove('hidden');
+    }
+    </script>
+</body>
+</html>

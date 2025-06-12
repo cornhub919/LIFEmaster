@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeMaster</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5E3B12',      // 主色调：温暖的棕色
+                        secondary: '#F9F5EB',    // 辅助色：米白色
+                        accent: '#B99B6B',       // 强调色：金色
+                        light: '#F5F5F5',        // 浅色背景
+                        dark: '#3C2A21'          // 深色文本
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 25px -5px rgba(94, 59, 18, 0.1), 0 8px 10px -6px rgba(94, 59, 18, 0.1)',
+                        'hover': '0 20px 25px -5px rgba(94, 59, 18, 0.2), 0 10px 10px -5px rgba(94, 59, 18, 0.1)'
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .bg-gradient-custom {
+                background: linear-gradient(135deg, #5E3B12 0%, #B99B6B 100%);
+            }
+        }
+    </style>
+    
+    <style>
+        /* 基础动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
+        }
+        
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #B99B6B;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5E3B12;
+        }
+    </style>
+</head>
+<body class="bg-secondary min-h-screen font-sans text-dark">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 bg-primary/95 text-white shadow-lg z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-book-open text-accent text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-tight">LifeMaster</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="user-welcome" class="text-accent font-medium">欢迎！</span>
+                <button id="logoutBtn" class="logout-btn bg-accent hover:bg-accent/90 text-primary font-medium py-2 px-4 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-28 pb-16">
+        <!-- 欢迎信息 -->
+        <section class="mb-12 text-center animate-fadeIn" style="animation-delay: 0.1s">
+            <h2 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-primary mb-4 text-shadow">
+                欢迎使用 LifeMaster
+            </h2>
+            <p class="text-[clamp(1rem,3vw,1.25rem)] text-dark/80 max-w-2xl mx-auto leading-relaxed">
+                电子手账，记录生活确幸
+            </p>
+            <div class="daily-push mt-8 text-[clamp(1.1rem,3vw,1.3rem)] font-medium text-primary/90 bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-card max-w-md mx-auto animate-pulse-slow">
+                <i class="fa-solid fa-quote-left text-accent mr-2"></i>
+                生活就像海洋，只有意志坚强的人，才能到达彼岸。
+                <i class="fa-solid fa-quote-right text-accent ml-2"></i>
+            </div>
+        </section>
+
+        <!-- 子页面入口 -->
+        <section class="subpage-container grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <!-- 手账入口 -->
+            <a href="handbook.html" class="subpage bg-white rounded-2xl shadow-card overflow-hidden transition-custom hover:shadow-hover hover:-translate-y-1 animate-fadeIn" style="animation-delay: 0.2s">
+                <div class="bg-primary p-8 flex items-center justify-center h-48">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="112" height="119" viewBox="0 0 112 119" fill="none">
+                        <path fill-rule="evenodd" fill="white" d="M72.8 0L84 0L84 11.9L106.4 11.9C109.492 11.9 112 14.5644 112 17.85L112 113.05C112 116.336 109.492 119 106.4 119L5.6 119C2.50768 119 0 116.336 0 113.05L0 17.85C0 14.5644 2.50768 11.9 5.6 11.9L28 11.9L28 0L39.2 0L39.2 11.9L72.8 11.9L72.8 0ZM72.8 23.8L72.8 35.7L84 35.7L84 23.8L100.8 23.8L100.8 47.6L11.2 47.6L11.2 23.8L28 23.8L28 35.7L39.2 35.7L39.2 23.8L72.8 23.8ZM11.2 59.5001L100.8 59.5001L100.8 107.1L11.2 107.1L11.2 59.5001ZM33.6 71.4L33.6 83.3L22.4 83.3L22.4 71.4L33.6 71.4ZM50.4 83.3L61.6 83.3L61.6 71.4L50.4 71.4L50.4 83.3ZM78.4 71.4L78.4 83.3L89.6 83.3L89.6 71.4L78.4 71.4Z"></path>
+                    </svg>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-primary mb-2">手账</h3>
+                    <p class="text-dark/70">记录生活点滴，留住美好回忆</p>
+                </div>
+            </a>
+            
+            <!-- ToDoList入口 -->
+            <a href="todolist.html" class="subpage bg-white rounded-2xl shadow-card overflow-hidden transition-custom hover:shadow-hover hover:-translate-y-1 animate-fadeIn" style="animation-delay: 0.3s">
+                <div class="bg-primary p-8 flex items-center justify-center h-48">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="85.9989013671875" height="91.00119018554688" viewBox="0 0 85.9989013671875 91.00119018554688" fill="none">
+                        <path fill-rule="evenodd" fill="white" d="M14.33 16.06L0 16.06L0 0L14.33 0L14.33 16.06ZM85.9989 13.3865L23.8889 13.3865L23.8889 2.6765L85.9989 2.6765L85.9989 13.3865ZM14.33 53.5306L0 53.5306L0 37.4706L14.33 37.4706L14.33 53.5306ZM23.8889 50.8571L85.9989 50.8571L85.9989 40.1471L23.8889 40.1471L23.8889 50.8571ZM14.33 91.0012L0 91.0012L0 74.9412L14.33 74.9412L14.33 91.0012ZM23.8889 88.3277L85.9989 88.3277L85.9989 77.6177L23.8889 77.6177L23.8889 88.3277Z"></path>
+                    </svg>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-primary mb-2">ToDoList</h3>
+                    <p class="text-dark/70">规划每日任务，提高工作效率</p>
+                </div>
+            </a>
+            
+            <!-- 记账入口 -->
+            <a href="accounting.html" class="subpage bg-white rounded-2xl shadow-card overflow-hidden transition-custom hover:shadow-hover hover:-translate-y-1 animate-fadeIn" style="animation-delay: 0.4s">
+                <div class="bg-primary p-8 flex items-center justify-center h-48">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131" height="120" viewBox="0 0 131 120" fill="none">
+                        <path fill-rule="evenodd" fill="white" d="M131 60C131 26.862 101.676 0 65.5 0C29.3244 0 0 26.862 0 60C0 93.138 29.3244 120 65.5 120C101.676 120 131 93.138 131 60ZM117.9 60C117.9 33.4906 94.4395 12 65.5 12C36.5605 12 13.1 33.4906 13.1 60C13.1 86.5094 36.5605 108 65.5 108C94.4395 108 117.9 86.5094 117.9 60ZM65.5 39.504L51.61 26.784L42.31 35.244L56.26 48.024L39.3 48.024L39.3 60.024L58.95 60.024L58.95 66.024L39.3 66.024L39.3 78.024L58.95 78.024L58.95 90.024L72.05 90.024L72.05 78.024L91.7 78.024L91.7 66.024L72.05 66.024L72.05 60.024L91.7 60.024L91.7 48.024L74.74 48.024L88.69 35.244L79.39 26.784L65.5 39.504Z"></path>
+                    </svg>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-primary mb-2">记账</h3>
+                    <p class="text-dark/70">管理个人财务，合理规划收支</p>
+                </div>
+            </a>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-4">© 2025 LifeMaster. 记录生活，掌控人生。</p>
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-white/80 hover:text-accent transition-colors">
+                    <i class="fa-brands fa-weibo text-xl"></i>
+                </a>
+                <a href="#" class="text-white/80 hover:text-accent transition-colors">
+                    <i class="fa-brands fa-wechat text-xl"></i>
+                </a>
+                <a href="#" class="text-white/80 hover:text-accent transition-colors">
+                    <i class="fa-brands fa-github text-xl"></i>
+                </a>
+            </div>
+            <p class="text-white/60 text-sm">用科技记录生活，让每一天都有意义</p>
+        </div>
+    </footer>
+
+    <!-- 提示框 -->
+    <div id="toast" class="toast fixed bottom-6 right-6 bg-dark text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-500 z-50 flex items-center">
+        <i id="toastIcon" class="fa-solid fa-circle-check mr-3 text-accent"></i>
+        <span id="toastMessage">操作成功</span>
+    </div>
+
+    <!-- 自定义确认对话框 -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex flex-col items-center mb-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center" id="confirm-title">确认操作</h3>
+            </div>
+            <div class="mb-6 text-center">
+                <p class="text-sm text-gray-700 leading-relaxed" id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('py-2');
+                navbar.classList.remove('py-3');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2');
+            }
+        });
+
+        // 自定义确认对话框
+        function showConfirm(title, message, okCallback, cancelCallback = null) {
+            const modal = document.getElementById('confirm-modal');
+            const titleElement = document.getElementById('confirm-title');
+            const messageElement = document.getElementById('confirm-message');
+            const okBtn = document.getElementById('confirm-ok-btn');
+            const cancelBtn = document.getElementById('confirm-cancel-btn');
+            
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+            
+            // 移除之前的事件监听器
+            const newOkBtn = okBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            
+            // 添加新的事件监听器
+            newOkBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (okCallback) okCallback();
+            });
+            
+            newCancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (cancelCallback) cancelCallback();
+            });
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 退出登录功能 - 使用自定义确认对话框
+        const logoutBtn = document.getElementById('logoutBtn');
+        logoutBtn.addEventListener('click', () => {
+            showConfirm(
+                '退出登录',
+                '确定要退出登录吗？',
+                () => {
+                    const token = localStorage.getItem('token');
+                    fetch('http://localhost:5000/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }).finally(() => {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        showToast('已成功退出登录', 'success');
+                        setTimeout(() => {
+                            window.location.replace('sign_in.html');
+                        }, 1500);
+                    });
+                }
+            );
+        });
+
+        // 显示提示框 - 兼容原有的showToast函数
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            // 设置图标
+            let iconClass = 'fa-circle-check';
+            if (type === 'error') {
+                iconClass = 'fa-circle-exclamation';
+                toast.classList.remove('bg-dark');
+                toast.classList.add('bg-red-600');
+            } else if (type === 'success') {
+                iconClass = 'fa-circle-check';
+                toast.classList.remove('bg-red-600');
+                toast.classList.add('bg-dark');
+            } else {
+                iconClass = 'fa-circle-info';
+                toast.classList.remove('bg-red-600');
+                toast.classList.add('bg-dark');
+            }
+            
+            toastMessage.textContent = message;
+            toastIcon.className = `fa-solid ${iconClass} mr-3 text-accent`;
+            
+            // 显示提示框
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // 3秒后隐藏提示框
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // 页面加载完成后的动画
+        document.addEventListener('DOMContentLoaded', () => {
+            // 这里可以添加更多页面加载完成后的交互效果
+        });
+    </script>
+</body>
+</html>

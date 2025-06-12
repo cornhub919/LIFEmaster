@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeMaster - 手账本</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="handbook.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5E3B12',
+                        secondary: '#8B5A2B',
+                        neutral: '#F5F5DC',
+                        accent: '#A0522D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .fade-in {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            .slide-up {
+                animation: slideUp 0.3s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral via-neutral to-purple-50 min-h-screen">
+    <div class="handbook-container">
+        <!-- 左侧边栏 --> 
+        <aside class="sidebar bg-gradient-to-b from-primary/5 to-primary/10 backdrop-blur-sm border-r border-primary/20">
+            <div class="flex items-center gap-4 mb-8">
+                <button id="back-btn" class="group flex items-center justify-center w-10 h-10 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-lg transition-all duration-300 transform hover:scale-105" title="返回主页">
+                    <i class="fa fa-arrow-left group-hover:translate-x-0.5 transition-transform duration-300"></i>
+                </button>
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold text-primary flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white">
+                            <i class="fa fa-book text-lg"></i>
+                        </div>
+                        手账本
+                    </h1>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">分类标签</h3>
+                <ul class="menu space-y-2">
+                    <!-- JS动态渲染 -->
+                </ul>
+            </div>
+            
+            <div class="sidebar-buttons space-y-3">
+                <button class="btn w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:from-amber-700 hover:to-orange-700 transform hover:scale-105 flex items-center justify-center gap-2" id="new-folder-btn">
+                    <i class="fa fa-cog"></i>管理标签
+                </button>
+                <button class="btn w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:from-emerald-700 hover:to-teal-700 transform hover:scale-105 flex items-center justify-center gap-2" id="new-file-btn">
+                    <i class="fa fa-plus"></i>新建手账
+                </button>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <main class="content bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-sm" id="handbook-content">
+            <div class="p-8">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-primary mb-4">
+                        我的手账
+                    </h2>
+                    <p class="text-gray-600 text-lg">记录生活点滴，珍藏美好时光</p>
+                </div>
+                
+                <div class="flex flex-col">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-start" id="handbook-list">
+                        <!-- JS 动态插入手账卡片 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新建标签模态框 -->
+    <div id="new-folder-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary">新建标签</h3>
+                <button id="close-folder-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <input type="text" id="folder-name-input" placeholder="输入标签名称..." 
+                class="w-full py-3 px-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 mb-6">
+            <div class="flex justify-end gap-3">
+                <button id="cancel-folder-btn" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">取消</button>
+                <button id="confirm-folder-btn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建手账模态框 -->
+    <div id="new-file-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 shadow-2xl slide-up max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-primary">新建手账</h3>
+                <button id="close-file-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左侧：手账信息 -->
+                <div class="lg:col-span-1 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">手账标题</label>
+                        <input type="text" id="file-title-input" placeholder="输入手账标题..." 
+                            class="w-full py-3 px-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">选择标签</label>
+                        <select id="file-tag-select" class="w-full py-3 px-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300">
+                            <option value="">请选择标签</option>
+                        </select>
+                        <input type="text" id="new-tag-input" placeholder="输入新标签名..." 
+                            class="w-full py-3 px-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 mt-2 hidden">
+                    </div>
+                </div>
+                
+                <!-- 右侧：编辑器 -->
+                <div class="lg:col-span-2">
+                    <div class="editor-toolbar mb-4">
+                        <button id="add-image-btn" class="toolbar-btn">
+                            <i class="fa-solid fa-image"></i> 添加图片
+                        </button>
+                        <button id="add-sticker-btn" class="toolbar-btn">
+                            <i class="fa-solid fa-heart"></i> 添加贴纸
+                        </button>
+                        <button id="add-text-btn" class="toolbar-btn">
+                            <i class="fa-solid fa-font"></i> 添加文本
+                        </button>
+                        <select id="sticker-select" class="py-2 px-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+                            <option value="">选择贴纸</option>
+                            <option value="heart">❤️ 爱心</option>
+                            <option value="star">⭐ 星星</option>
+                            <option value="smile">😊 笑脸</option>
+                            <option value="flower">🌸 花朵</option>
+                            <option value="sun">☀️ 太阳</option>
+                        </select>
+                    </div>
+                    
+                    <div id="handbook-editor" class="handbook-editor">
+                        <div class="text-center text-gray-400 mt-10">
+                            <p>拖放图片、贴纸或文本框到这里</p>
+                            <p class="text-sm mt-2">使用工具栏添加元素</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancel-file-btn" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">取消</button>
+                <button id="confirm-file-btn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">保存手账</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览手账模态框 -->
+    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 shadow-2xl slide-up max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary" id="preview-title">手账预览</h3>
+                <div class="flex gap-2">
+                    <button id="edit-handbook-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                        <i class="fa-solid fa-edit mr-1"></i>编辑
+                    </button>
+                    <button id="delete-handbook-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fa-solid fa-trash mr-1"></i>删除
+                    </button>
+                    <button id="close-preview-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="preview-content" class="handbook-editor" style="position: relative; min-height: 400px; background: #f9f9f9; border: 2px dashed #ddd;">
+                <!-- 预览内容将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片上传模态框 -->
+    <div id="image-upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary">上传图片</h3>
+                <button id="close-image-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <button id="browse-image-btn" class="w-full py-4 px-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary transition-colors text-center">
+                    <i class="fa-solid fa-upload mr-2"></i>选择图片
+                </button>
+                <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+            </div>
+            <div id="image-preview-container" class="mb-4 hidden">
+                <img id="image-preview" class="w-full max-h-48 object-contain rounded-lg">
+            </div>
+            <div class="flex justify-end gap-3">
+                <button id="cancel-image-btn" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">取消</button>
+                <button id="confirm-image-btn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors" disabled>插入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-16 opacity-0 transition-all duration-500 z-50"></div>
+
+    <!-- 自定义确认对话框 - 提高z-index -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex flex-col items-center mb-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center" id="confirm-title">确认操作</h3>
+            </div>
+            <div class="mb-6 text-center">
+                <p class="text-sm text-gray-700 leading-relaxed" id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签管理模态框 - 降低z-index -->
+    <div id="tag-management-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary">管理标签</h3>
+                <button id="close-tag-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">添加新标签</label>
+                <div class="flex gap-2">
+                    <input type="text" id="new-tag-name-input" placeholder="输入标签名称" 
+                        class="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                    <button id="confirm-add-tag" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-all duration-300">
+                        添加
+                    </button>
+                </div>
+            </div>
+            
+            <div class="border-t pt-4">
+                <h4 class="font-medium text-gray-700 mb-3">已有标签</h4>
+                <div id="tag-list" class="space-y-2 max-h-64 overflow-y-auto">
+                    <!-- 标签列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="handbook.js"></script>
+</body>
+</html>

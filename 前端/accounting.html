@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeMaster - 记账</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <!-- 修复Chart.js未引入导致getContext不是函数的致命错误 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5E3B12',
+                        secondary: '#8B5A2B',
+                        neutral: '#F5F5DC',
+                        accent: '#A0522D',
+                        income: '#4CAF50',
+                        expense: '#FF4444',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .record-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-in-out;
+            }
+            .slide-up {
+                animation: slideUp 0.3s ease-out;
+            }
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(94, 59, 18, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(94, 59, 18, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(94, 59, 18, 0); }
+            }
+            .circle-currency {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 1.5em;
+                height: 1.5em;
+                border-radius: 50%;
+                background-color: theme('colors.primary');
+                color: white;
+                font-weight: bold;
+                margin-right: 0.5em;
+            }
+            
+            /* 自定义滚动条样式 */
+            .custom-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: #A0522D #F5F5DC;
+            }
+            
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #F5F5DC;
+                border-radius: 3px;
+            }
+            
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #A0522D;
+                border-radius: 3px;
+            }
+            
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #5E3B12;
+            }
+            
+            /* 平滑滚动 */
+            .smooth-scroll {
+                scroll-behavior: smooth;
+            }
+        
+            /* 优化表格行高 */
+            .records-table-row {
+                height: 52px; /* 固定行高，确保一致性 */
+            }
+            
+            /* 表格容器优化 */
+            .records-container {
+                height: 520px; /* 固定高度，大约可显示10行记录 */
+            }
+            
+            /* 确保表格内容填满容器 */
+            .records-table {
+                height: 100%;
+            }
+            
+            /* 优化表格单元格 */
+            .records-table td,
+            .records-table th {
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+            
+            /* 响应式调整 */
+            @media (max-width: 1280px) {
+                .records-container {
+                    height: 450px; /* 中等屏幕 */
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .records-container {
+                    height: 400px; /* 小屏幕 */
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral via-neutral to-emerald-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- 顶部导航卡片 -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10">
+            <div class="flex items-center gap-6">
+                <button id="back-btn" class="group flex items-center justify-center w-12 h-12 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <i class="fa-solid fa-arrow-left text-lg group-hover:translate-x-0.5 transition-transform duration-300"></i>
+                </button>
+                <div class="flex-1">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-primary flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center text-white">
+                            <span class="font-bold text-xl">¥</span>
+                        </div>
+                        生活记账
+                    </h1>
+                    <p class="text-gray-600 mt-2 text-lg">记录每一笔收支，掌握财务状况</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-emerald-100 text-sm font-medium">本月收入</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-income">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-arrow-trend-up text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-red-100 text-sm font-medium">本月支出</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-expense">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-arrow-trend-down text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-primary to-accent rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-amber-100 text-sm font-medium">本月结余</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-balance">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-wallet text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加新记录区域 -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10 slide-up">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-white text-sm"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-primary">添加新记录</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">收支类型</label>
+                    <div class="flex rounded-xl overflow-hidden border-2 border-gray-200">
+                        <button id="income-btn" class="flex-1 py-3 px-6 bg-emerald-500 text-white font-medium transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up"></i> 收入
+                        </button>
+                        <button id="expense-btn" class="flex-1 py-3 px-6 bg-gray-100 text-gray-700 font-medium transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-down"></i> 支出
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-2">
+                    <div class="flex items-end gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">分类</label>
+                            <select id="category-select" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white text-lg">
+                                <option value="">请选择分类</option>
+                            </select>
+                        </div>
+                        <button id="add-category-btn" class="bg-gradient-to-r from-primary to-accent text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-cog"></i>管理分类
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">金额</label>
+                    <input type="number" id="amount-input" placeholder="0.00" step="0.01" min="0" 
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">日期</label>
+                    <input type="date" id="date-input" 
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
+                </div>
+                
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">备注（可选）</label>
+                    <input type="text" id="note-input" placeholder="添加备注..." 
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
+                </div>
+                
+                <button id="add-record-btn" class="lg:col-span-2 bg-gradient-to-r from-primary to-accent text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center text-lg gap-3">
+                    <i class="fa-solid fa-plus"></i>添加记录
+                </button>
+            </div>
+        </div>
+
+        <!-- 图表和记录区域 -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- 图表区域 -->
+            <div class="space-y-6">
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+                    <h3 class="text-xl font-bold text-emerald-600 mb-4 flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-emerald-500"></i> 收入分类占比
+                    </h3>
+                    <div class="h-64 flex items-center justify-center relative">
+                        <canvas id="income-chart" class="w-full h-full"></canvas>
+                        <div id="income-chart-empty" class="absolute text-gray-400 text-center hidden">暂无收入数据</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+                    <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-red-500"></i> 支出分类占比
+                    </h3>
+                    <div class="h-64 flex items-center justify-center relative">
+                        <canvas id="expense-chart" class="w-full h-full"></canvas>
+                        <div id="expense-chart-empty" class="absolute text-gray-400 text-center hidden">暂无支出数据</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近记录 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10 flex flex-col">
+                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-history text-white text-sm"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-primary">最近记录</h2>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        <button id="filter-all-records" class="filter-btn bg-primary text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">全部</button>
+                        <button id="filter-income" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">收入</button>
+                        <button id="filter-expense" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">支出</button>
+                    </div>
+                </div>
+
+                <!-- 批量操作区域 -->
+                <div class="flex items-center gap-4 mb-4 bg-gray-50 rounded-xl px-4 py-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="select-all-records" class="w-5 h-5 accent-primary rounded">
+                        <span class="text-gray-700 font-medium">全选</span>
+                    </label>
+                    <button id="delete-selected-records-btn" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-trash text-sm"></i>批量删除
+                    </button>
+                </div>
+                
+                <!-- 记录表格 - 进一步增加高度 -->
+                <div class="flex-1 overflow-hidden rounded-xl border border-gray-200">
+                    <div class="overflow-x-auto h-full custom-scrollbar records-container" style="height: 520px;">
+                        <table class="min-w-full divide-y divide-gray-200 h-full records-table">
+                            <thead class="bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">选择</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">日期</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">分类</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">备注</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">金额</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-table" class="bg-white divide-y divide-gray-100">
+                                <!-- 记录会通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 空状态 -->
+                <div id="empty-records" class="py-12 text-center hidden">
+                    <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-receipt text-3xl text-gray-400"></i>
+                    </div>
+                    <p class="text-lg text-gray-500 font-medium">暂无记录</p>
+                    <p class="text-gray-400 mt-1">添加一笔收支开始记录吧</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑记录模态框 -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <h3 class="text-xl font-semibold text-primary mb-4">编辑记录</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">类型</label>
+                    <div class="flex">
+                        <button id="edit-income-btn" class="flex-1 py-2 px-4 bg-income text-white rounded-l-lg transition-all duration-300">
+                            <i class="fa-solid fa-arrow-down mr-1"></i> 收入
+                        </button>
+                        <button id="edit-expense-btn" class="flex-1 py-2 px-4 bg-gray-200 text-gray-700 rounded-r-lg transition-all duration-300">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 支出
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                    <select id="edit-category-select" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <!-- 分类选项将通过JavaScript动态生成 -->
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">金额</label>
+                    <input type="number" id="edit-amount-input" placeholder="0.00" step="0.01" min="0" 
+                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                    <input type="date" id="edit-date-input" 
+                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">备注（可选）</label>
+                    <input type="text" id="edit-note-input" placeholder="添加备注..." 
+                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancel-edit-btn" class="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">取消</button>
+                <button id="save-edit-btn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-16 opacity-0 transition-all duration-500 z-50"></div>
+
+    <!-- 自定义确认对话框 - 提高z-index -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex flex-col items-center mb-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center" id="confirm-title">确认操作</h3>
+            </div>
+            <div class="mb-6 text-center">
+                <p class="text-sm text-gray-700 leading-relaxed" id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类管理模态框 - 保持z-50 -->
+    <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary">管理分类</h3>
+                <button id="close-category-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">添加新分类</label>
+                <div class="flex gap-2">
+                    <input type="text" id="new-category-input" placeholder="输入分类名称" 
+                        class="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                    <select id="new-category-type" class="py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                    <button id="confirm-add-category" class="px-4 py-2 bg-primary text-white rounded-lg transition-all duration-300">
+                        添加
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 添加滚动容器 -->
+            <div class="border-t pt-4 flex-1 overflow-y-auto max-h-96 custom-scrollbar">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">收入分类</h4>
+                        <ul id="income-categories" class="space-y-2 mb-4 max-h-32 overflow-y-auto pr-2">
+                            <!-- 收入分类将通过JavaScript动态生成 -->
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">支出分类</h4>
+                        <ul id="expense-categories" class="space-y-2 max-h-32 overflow-y-auto pr-2">
+                            <!-- 支出分类将通过JavaScript动态生成 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+window.onerror = function(message, source, lineno, colno, error) {
+    alert("JS错误: " + message + "\n文件: " + source + "\n行: " + lineno + "\n列: " + colno + (error && error.stack ? "\n\n堆栈:\n" + error.stack : ""));
+    return false;
+};
+
+let categories = { income: [], expense: [] };
+let records = [];
+let currentEditingRecordId = null;
+let currentRecordFilter = 'all';
+let currentRecordType = 'income';
+let incomeChart, expenseChart;
+
+const incomeBtn = document.getElementById('income-btn');
+const expenseBtn = document.getElementById('expense-btn');
+const categorySelect = document.getElementById('category-select');
+const amountInput = document.getElementById('amount-input');
+const dateInput = document.getElementById('date-input');
+const noteInput = document.getElementById('note-input');
+const addRecordBtn = document.getElementById('add-record-btn');
+const recordsTable = document.getElementById('records-table');
+const emptyRecords = document.getElementById('empty-records');
+const editModal = document.getElementById('edit-modal');
+const editIncomeBtn = document.getElementById('edit-income-btn');
+const editExpenseBtn = document.getElementById('edit-expense-btn');
+const editCategorySelect = document.getElementById('edit-category-select');
+const editAmountInput = document.getElementById('edit-amount-input');
+const editDateInput = document.getElementById('edit-date-input');
+const editNoteInput = document.getElementById('edit-note-input');
+const saveEditBtn = document.getElementById('save-edit-btn');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const toast = document.getElementById('toast');
+const backBtn = document.getElementById('back-btn');
+const filterButtons = document.querySelectorAll('.filter-btn');
+const monthIncomeElement = document.getElementById('month-income');
+const monthExpenseElement = document.getElementById('month-expense');
+const monthBalanceElement = document.getElementById('month-balance');
+const addCategoryBtn = document.getElementById('add-category-btn');
+const categoryModal = document.getElementById('category-modal');
+const closeCategoryModal = document.getElementById('close-category-modal');
+const newCategoryInput = document.getElementById('new-category-input');
+const newCategoryType = document.getElementById('new-category-type');
+const confirmAddCategory = document.getElementById('confirm-add-category');
+const incomeCategoriesList = document.getElementById('income-categories');
+const expenseCategoriesList = document.getElementById('expense-categories');
+
+
+// 渲染分类
+function displayCategories(data) {
+    categories = data;
+    renderCategorySelectors();
+    renderCategoryManagementLists(); // 新增：更新分类管理列表
+}
+
+// 渲染记录
+function displayRecords(data, cats) {
+    console.log('[DEBUG] displayRecords 被调用');
+    records = data || [];
+    if (cats) {
+        categories = cats;
+        renderCategorySelectors();
+    }
+    renderRecords();
+    updateStatistics();
+    setTimeout(() => updateCharts(), 100);
+}
+
+// 分类选择器渲染和过滤
+function renderCategorySelectors() {
+    categorySelect.innerHTML = '<option value="">请选择分类</option>';
+    editCategorySelect.innerHTML = '<option value="">请选择分类</option>';
+    
+    // 对分类进行排序 - "其他"类别排在最后
+    const sortedIncomeCategories = [...categories.income].sort((a, b) => {
+        // "其他收入"排在最后
+        if (a.name.includes('其他')) return 1;
+        if (b.name.includes('其他')) return -1;
+        return a.id - b.id; // 其他按ID排序
+    });
+    
+    const sortedExpenseCategories = [...categories.expense].sort((a, b) => {
+        // "其他支出"排在最后
+        if (a.name.includes('其他')) return 1;
+        if (b.name.includes('其他')) return -1;
+        return a.id - b.id; // 其他按ID排序
+    });
+    
+    sortedIncomeCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        option.setAttribute('data-type', 'income');
+        categorySelect.appendChild(option.cloneNode(true));
+        editCategorySelect.appendChild(option);
+    });
+    
+    sortedExpenseCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        option.setAttribute('data-type', 'expense');
+        categorySelect.appendChild(option.cloneNode(true));
+        editCategorySelect.appendChild(option);
+    });
+    // 立即根据当前类型过滤
+    filterCategoryOptions(currentRecordType, categorySelect);
+    filterCategoryOptions(editIncomeBtn.classList.contains('bg-income') ? 'income' : 'expense', editCategorySelect);
+    // 若无分类，自动切回有分类的类型
+    if (
+        categorySelect.querySelectorAll('option[data-type]:not([style*="display: none"])').length === 0 &&
+        categorySelect.querySelectorAll('option[data-type]').length > 0
+    ) {
+        // 自动切换到另一种类型
+        setRecordType(currentRecordType === 'income' ? 'expense' : 'income');
+    }
+}
+
+// 分类选项过滤
+function filterCategoryOptions(type, selectElement) {
+    const options = selectElement.querySelectorAll('option[data-type]');
+    options.forEach(option => {
+        option.style.display = option.getAttribute('data-type') === type ? '' : 'none';
+    });
+    // 若当前选项被隐藏，则重置
+    if (selectElement.selectedIndex > 0 && selectElement.options[selectElement.selectedIndex].style.display === 'none') {
+        selectElement.value = '';
+    }
+}
+
+// 切换收入/支出类型
+function setRecordType(type) {
+    currentRecordType = type;
+    if (type === 'income') {
+        incomeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        incomeBtn.classList.add('bg-income', 'text-white');
+        expenseBtn.classList.remove('bg-expense', 'text-white');
+        expenseBtn.classList.add('bg-gray-200', 'text-gray-700');
+    } else {
+        expenseBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        expenseBtn.classList.add('bg-expense', 'text-white');
+        incomeBtn.classList.remove('bg-income', 'text-white');
+        incomeBtn.classList.add('bg-gray-200', 'text-gray-700');
+    }
+    filterCategoryOptions(type, categorySelect);
+    categorySelect.value = "";
+}
+
+// 编辑时切换类型
+function setEditRecordType(type) {
+    if (type === 'income') {
+        editIncomeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        editIncomeBtn.classList.add('bg-income', 'text-white');
+        editExpenseBtn.classList.remove('bg-expense', 'text-white');
+        editExpenseBtn.classList.add('bg-gray-200', 'text-gray-700');
+    } else {
+        editExpenseBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        editExpenseBtn.classList.add('bg-expense', 'text-white');
+        editIncomeBtn.classList.remove('bg-income', 'text-white');
+        editIncomeBtn.classList.add('bg-gray-200', 'text-gray-700');
+    }
+    filterCategoryOptions(type, editCategorySelect);
+    editCategorySelect.value = "";
+}
+
+// 渲染记录
+function renderRecords() {
+    recordsTable.innerHTML = '';
+    if (!records || records.length === 0) {
+        emptyRecords.classList.remove('hidden');
+        return;
+    }
+    emptyRecords.classList.add('hidden');
+
+    let filteredRecords = records;
+    if (currentRecordFilter === 'income') {
+        filteredRecords = records.filter(record => record.type === 'income');
+    } else if (currentRecordFilter === 'expense') {
+        filteredRecords = records.filter(record => record.type === 'expense');
+    }
+
+    filteredRecords.forEach(record => {
+        const row = document.createElement('tr');
+        row.dataset.id = record.id;
+        row.classList.add('hover:bg-gray-50', 'transition-colors', 'cursor-pointer', 'records-table-row');
+        row.innerHTML = `
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                <input type="checkbox" class="select-record-checkbox accent-primary scale-125 rounded focus:ring-primary border-gray-300" data-record-id="${record.id}">
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">${new Date(record.date).toLocaleDateString()}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                ${record.category && record.category.name ? record.category.name : getCategoryName(record.category_id)}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                ${record.note || '<span class="text-gray-400">无</span>'}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-right">
+                <span class="${record.type==='income'?'text-green-600':'text-red-600'}">
+                    ${record.type==='income'?'+':'-'}¥${record.amount.toFixed(2)}
+                </span>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                <div class="flex items-center gap-3">
+                    <button class="edit-record-btn text-primary hover:text-accent transition-colors duration-300 p-1" title="编辑">
+                        <i class="fa-solid fa-pencil-alt text-base"></i>
+                    </button>
+                    <button class="delete-record-btn text-red-600 hover:text-red-800 transition-colors duration-300 p-1" title="删除">
+                        <i class="fa-solid fa-trash text-base"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        recordsTable.appendChild(row);
+    });
+    updateStatistics();
+}
+
+// 更新统计数据
+function updateStatistics() {
+    const monthRecords = records.filter(record => {
+        const recordDate = new Date(record.date);
+        const start = new Date();
+        const end = new Date();
+        start.setDate(1);
+        end.setMonth(end.getMonth() + 1);
+        end.setDate(0);
+        return recordDate >= start && recordDate <= end;
+    });
+
+    const income = monthRecords.reduce((sum, record) => record.type === 'income' ? sum + record.amount : sum, 0);
+    const expense = monthRecords.reduce((sum, record) => record.type === 'expense' ? sum + record.amount : sum, 0);
+    const balance = income - expense;
+
+    monthIncomeElement.textContent = `¥${income.toFixed(2)}`;
+    monthExpenseElement.textContent = `¥${expense.toFixed(2)}`;
+    monthBalanceElement.textContent = `¥${balance.toFixed(2)}`;
+}
+
+// 获取分类名称（修复分类名显示问题）
+function getCategoryName(categoryId) {
+    let cat = categories.income.find(c => c.id == categoryId) || categories.expense.find(c => c.id == categoryId);
+    return cat ? cat.name : '未知分类';
+}
+
+// 新增：渲染分类管理列表
+function renderCategoryManagementLists() {
+    // 渲染收入分类列表
+    incomeCategoriesList.innerHTML = '';
+    const sortedIncomeCategories = [...categories.income].sort((a, b) => {
+        if (a.name.includes('其他')) return 1;
+        if (b.name.includes('其他')) return -1;
+        return a.id - b.id;
+    });
+    
+    sortedIncomeCategories.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+        li.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${cat.color}"></div>
+                <span>${cat.name}</span>
+                ${cat.is_default ? '<span class="text-xs text-gray-500 ml-2">(默认)</span>' : ''}
+            </div>
+            ${!cat.is_default ? `<button class="delete-category-btn text-red-500 hover:text-red-700 text-sm" data-category-id="${cat.id}" data-category-type="income">
+                <i class="fa-solid fa-trash"></i>
+            </button>` : ''}
+        `;
+        incomeCategoriesList.appendChild(li);
+    });
+    
+    // 渲染支出分类列表
+    expenseCategoriesList.innerHTML = '';
+    const sortedExpenseCategories = [...categories.expense].sort((a, b) => {
+        if (a.name.includes('其他')) return 1;
+        if (b.name.includes('其他')) return -1;
+        return a.id - b.id;
+    });
+    
+    sortedExpenseCategories.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+        li.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${cat.color}"></div>
+                <span>${cat.name}</span>
+                ${cat.is_default ? '<span class="text-xs text-gray-500 ml-2">(默认)</span>' : ''}
+            </div>
+            ${!cat.is_default ? `<button class="delete-category-btn text-red-500 hover:text-red-700 text-sm" data-category-id="${cat.id}" data-category-type="expense">
+                <i class="fa-solid fa-trash"></i>
+            </button>` : ''}
+        `;
+        expenseCategoriesList.appendChild(li);
+    });
+    
+    // 绑定删除按钮事件
+    document.querySelectorAll('.delete-category-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const categoryId = e.currentTarget.dataset.categoryId;
+            const categoryType = e.currentTarget.dataset.categoryType;
+            const categoryName = e.currentTarget.closest('li').querySelector('span').textContent;
+            deleteCategory(categoryId, categoryName);
+        });
+    });
+}
+
+// 自定义确认对话框
+function showConfirm(title, message, okCallback, cancelCallback = null) {
+    const modal = document.getElementById('confirm-modal');
+    const titleElement = document.getElementById('confirm-title');
+    const messageElement = document.getElementById('confirm-message');
+    const okBtn = document.getElementById('confirm-ok-btn');
+    const cancelBtn = document.getElementById('confirm-cancel-btn');
+    
+    titleElement.textContent = title;
+    messageElement.innerHTML = message; // 使用innerHTML支持换行
+    
+    // 移除之前的事件监听器
+    const newOkBtn = okBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    
+    // 添加新的事件监听器
+    newOkBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        if (okCallback) okCallback();
+    });
+    
+    newCancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        if (cancelCallback) cancelCallback();
+    });
+    
+    // 显示模态框
+    modal.classList.remove('hidden');
+    
+    // ESC键关闭
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.classList.add('hidden');
+            if (cancelCallback) cancelCallback();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+}
+
+// 新增：删除分类函数
+async function deleteCategory(categoryId, categoryName) {
+    try {
+        // 第一次尝试删除
+        const response = await apiRequest(`/api/accounting/categories/${categoryId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response && response.ok) {
+            const result = await response.json();
+            
+            if (result.code === 0) {
+                showToast('分类删除成功！', 'success');
+                // 重新加载数据
+                await loadAccountingDataAndUpdateCharts();
+                // 更新分类管理列表
+                renderCategoryManagementLists();
+            } else if (result.code === -2) {
+                // 需要用户确认删除 - 使用自定义确认框，优化消息格式
+                const confirmMessage = `
+                    <div class="space-y-3">
+                        <p class="text-black font-bold text-base">${result.msg}</p>
+                        <p class="text-black font-bold text-base">确定要删除分类"${categoryName}"及其下所有记录吗？</p>
+                    </div>
+                `;
+                
+                showConfirm(
+                    '删除确认',
+                    confirmMessage,
+                    async () => {
+                        // 用户确认后，强制删除
+                        const forceResponse = await apiRequest(`/api/accounting/categories/${categoryId}?force=true`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (forceResponse && forceResponse.ok) {
+                            const forceResult = await forceResponse.json();
+                            if (forceResult.code === 0) {
+                                showToast('分类及相关记录删除成功！', 'success');
+                                // 重新加载数据
+                                await loadAccountingDataAndUpdateCharts();
+                                // 更新分类管理列表
+                                renderCategoryManagementLists();
+                            } else {
+                                showToast(forceResult.msg || '删除分类失败', 'error');
+                            }
+                        } else {
+                            showToast('删除分类失败', 'error');
+                        }
+                    }
+                );
+            } else {
+                showToast(result.msg || '删除分类失败', 'error');
+            }
+        } else {
+            showToast('删除分类失败', 'error');
+        }
+    } catch (error) {
+        console.error('删除分类错误:', error);
+        showToast('删除分类失败', 'error');
+    }
+}
+
+// 删除记录
+function deleteRecord(recordId) {
+    showConfirm(
+        '删除记录',
+        '确定要删除这个记录吗？此操作不可恢复。',
+        () => {
+            deleteAccountingRecord(recordId);
+        }
+    );
+}
+
+// 编辑记录
+function startEditing(recordId) {
+    currentEditingRecordId = recordId;
+    const record = records.find(r => r.id === recordId);
+    if (!record) return;
+    setEditRecordType(record.type);
+    editCategorySelect.value = record.category_id;
+    editAmountInput.value = record.amount;
+    editDateInput.value = record.date.split('T')[0];
+    editNoteInput.value = record.note || '';
+
+    // 显示编辑模态框
+    editModal.classList.remove('hidden');
+}
+
+// 保存编辑
+function saveEdit() {
+    const categoryId = editCategorySelect.value;
+    const amount = parseFloat(editAmountInput.value);
+    const date = editDateInput.value;
+    const note = editNoteInput.value.trim();
+
+    if (!categoryId) {
+        showToast('请选择分类', 'error');
+        return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+        showToast('请输入有效的金额', 'error');
+        return;
+    }
+    if (!date) {
+        showToast('请选择日期', 'error');
+        return;
+    }
+
+    editModal.classList.add('hidden');
+    updateAccountingRecord(currentEditingRecordId, {
+        category_id: categoryId,
+        amount: amount,
+        date: date,
+        note: note
+    });
+}
+
+// 修复图表初始化
+function initCharts() {
+    try {
+        console.log('[DEBUG] 开始初始化图表...');
+        
+        const incomeContainer = document.getElementById('income-chart');
+        const expenseContainer = document.getElementById('expense-chart');
+        
+        if (!incomeContainer || !expenseContainer) {
+            console.error('[ERROR] 图表容器不存在');
+            return;
+        }
+
+        Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#666';
+        
+        const ctx1 = incomeContainer.getContext('2d');
+        const ctx2 = expenseContainer.getContext('2d');
+        
+        incomeChart = new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: ['暂无数据'],
+                datasets: [{
+                    label: '收入',
+                    data: [1],
+                    backgroundColor: ['#E0E0E0'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                hover: { mode: null },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 15, padding: 15, font: { size: 12 }, usePointStyle: true }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        intersect: true,
+                        mode: 'point',
+                        callbacks: {
+                            label: function(context) {
+                                if (context.label === '暂无数据') return '暂无收入数据';
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ¥${value.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                onHover: (event, elements, chart) => {
+                    event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+                },
+                elements: {
+                    arc: {
+                        hoverBackgroundColor: function(context) {
+                            return context.chart.data.datasets[0].backgroundColor[context.dataIndex];
+                        },
+                        hoverBorderColor: function(context) { return '#fff'; },
+                        hoverBorderWidth: 2
+                    }
+                }
+            }});
+        
+        expenseChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: ['暂无数据'],
+                datasets: [{
+                    label: '支出',
+                    data: [1],
+                    backgroundColor: ['#E0E0E0'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                hover: { mode: null },
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 15, padding: 15, font: { size: 12 }, usePointStyle: true }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        intersect: true,
+                        mode: 'point',
+                        callbacks: {
+                            label: function(context) {
+                                if (context.label === '暂无数据') return '暂无支出数据';
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ¥${value.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                onHover: (event, elements, chart) => {
+                    event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+                },
+                elements: {
+                    arc: {
+                        hoverBackgroundColor: function(context) {
+                            return context.chart.data.datasets[0].backgroundColor[context.dataIndex];
+                        },
+                        hoverBorderColor: function(context) { return '#fff'; },
+                        hoverBorderWidth: 2
+                    }
+                }
+            }});
+        
+        console.log('[DEBUG] 图表初始化完成');
+        
+    } catch (e) {
+        console.error('[ERROR] 图表初始化错误:', e);
+    }
+}
+
+// ...existing code for updateCharts, loadAccountingDataAndUpdateCharts, addRecord, addNewCategory, closeEditModal, showToast, updateFilterButtons...
+
+// 在DOM加载事件中确保正确初始化图表和加载数据
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[DEBUG] DOM加载完成');
+    
+    dateInput.value = new Date().toISOString().split('T')[0];
+    
+    if (document.getElementById('income-chart') && document.getElementById('expense-chart')) {
+        initCharts();
+    }
+
+    incomeBtn.addEventListener('click', () => setRecordType('income'));
+    expenseBtn.addEventListener('click', () => setRecordType('expense'));
+    addRecordBtn.addEventListener('click', addRecord);
+    backBtn.addEventListener('click', () => window.location.replace('main.html'));
+
+    // 分类管理模态框事件 - 添加安全检查
+    if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', () => {
+            const categoryModal = document.getElementById('category-modal');
+            if (categoryModal) {
+                categoryModal.classList.remove('hidden');
+                renderCategoryManagementLists();
+            }
+        });
+    }
+    
+    if (closeCategoryModal) {
+        closeCategoryModal.addEventListener('click', () => {
+            const categoryModal = document.getElementById('category-modal');
+            if (categoryModal) {
+                categoryModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    if (confirmAddCategory) {
+        confirmAddCategory.addEventListener('click', addNewCategory);
+    }
+
+    // 编辑模态框事件 - 添加安全检查
+    if (editIncomeBtn) {
+        editIncomeBtn.addEventListener('click', () => setEditRecordType('income'));
+    }
+    if (editExpenseBtn) {
+        editExpenseBtn.addEventListener('click', () => setEditRecordType('expense'));
+    }
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener('click', saveEdit);
+    }
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', closeEditModal);
+    }
+
+    // 过滤按钮事件 - 添加安全检查
+    if (filterButtons && filterButtons.length > 0) {
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentRecordFilter = e.target.id.replace('filter-', '').replace('-records', '');
+                updateFilterButtons();
+                renderRecords();
+            });
+        });
+    }
+
+    // 记录表格事件 - 添加安全检查
+    if (recordsTable) {
+        recordsTable.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-record-btn');
+            if (editBtn) {
+                const recordId = parseInt(editBtn.closest('tr').dataset.id);
+                startEditing(recordId);
+            }
+            const deleteBtn = e.target.closest('.delete-record-btn');
+            if (deleteBtn) {
+                const recordId = parseInt(deleteBtn.closest('tr').dataset.id);
+                deleteRecord(recordId);
+            }
+        });
+    }
+
+    // 批量操作事件绑定 - 添加安全检查
+    const selectAllRecordsBox = document.getElementById('select-all-records');
+    const deleteSelectedRecordsBtn = document.getElementById('delete-selected-records-btn');
+    
+    if (selectAllRecordsBox) {
+        selectAllRecordsBox.addEventListener('change', function() {
+            document.querySelectorAll('.select-record-checkbox').forEach(cb => {
+                cb.checked = selectAllRecordsBox.checked;
+            });
+        });
+    }
+    
+    if (deleteSelectedRecordsBtn) {
+        deleteSelectedRecordsBtn.addEventListener('click', async function() {
+            const checked = Array.from(document.querySelectorAll('.select-record-checkbox:checked'));
+            if (checked.length === 0) {
+                showToast('请先选择要删除的记录', 'error');
+                return;
+            }
+            
+            showConfirm(
+                '批量删除记录',
+                `确定要删除选中的 ${checked.length} 条记录吗？此操作不可恢复。`,
+                async () => {
+                    for (const cb of checked) {
+                        const recordId = cb.getAttribute('data-record-id');
+                        await deleteAccountingRecord(recordId);
+                    }
+                    // 重新加载数据
+                    await loadAccountingDataAndUpdateCharts();
+                    // 取消全选状态
+                    if (selectAllRecordsBox) {
+                        selectAllRecordsBox.checked = false;
+                    }
+                    showToast(`成功删除 ${checked.length} 条记录`, 'success');
+                }
+            );
+        });
+    }
+
+    console.log('[DEBUG] 开始加载数据...');
+    loadAccountingDataAndUpdateCharts();
+});
+
+// 数据加载函数
+async function loadAccountingDataAndUpdateCharts() {
+    console.log('[DEBUG] === 开始加载数据 ===');
+    
+    try {
+        const categoriesResponse = await apiRequest('/api/accounting/categories');
+        if (categoriesResponse && categoriesResponse.ok) {
+            const categoriesData = await categoriesResponse.json();
+            categories = categoriesData.data;
+            console.log('[DEBUG] 分类加载完成:', categories);
+            renderCategorySelectors();
+            renderCategoryManagementLists();
+        }
+        
+        const recordsResponse = await apiRequest('/api/accounting/records');
+        if (recordsResponse && recordsResponse.ok) {
+            const recordsData = await recordsResponse.json();
+            records = recordsData.data.records || [];
+            console.log('[DEBUG] 记录加载完成:', records.length, '条');
+            renderRecords();
+            updateStatistics();
+        }
+        
+        setTimeout(() => {
+            console.log('[DEBUG] 数据加载完成，更新图表');
+            updateCharts();
+        }, 200);
+        
+    } catch (error) {
+        console.error('[ERROR] 数据加载失败:', error);
+        showToast('数据加载失败', 'error');
+    }
+}
+
+// 添加记录函数
+async function addRecord() {
+    const categoryId = categorySelect.value;
+    const amount = parseFloat(amountInput.value);
+    const date = dateInput.value;
+    const note = noteInput.value.trim();
+
+    if (!categoryId) {
+        showToast('请选择分类', 'error');
+        return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+        showToast('请输入有效的金额', 'error');
+        return;
+    }
+    if (!date) {
+        showToast('请选择日期', 'error');
+        return;
+    }
+
+    try {
+        showToast('正在添加记录...', 'info');
+        
+        await addAccountingRecord({
+            type: currentRecordType,
+            category_id: categoryId,
+            amount: amount,
+            date: date,
+            note: note
+        });
+        
+        showToast('记录添加成功！', 'success');
+        amountInput.value = '';
+        noteInput.value = '';
+        amountInput.focus();
+        
+        setTimeout(() => {
+            loadAccountingDataAndUpdateCharts();
+        }, 500);
+        
+    } catch (error) {
+        console.error('添加记录失败:', error);
+        showToast('添加记录失败: ' + error.message, 'error');
+    }
+}
+
+// 添加新分类（调用API）
+async function addNewCategory() {
+    const categoryName = newCategoryInput.value.trim();
+    const categoryType = newCategoryType.value;
+    
+    if (!categoryName) {
+        showToast('请输入分类名称', 'error');
+        return;
+    }
+    
+    // 检查是否已存在同名分类
+    const allCategories = [...categories.income, ...categories.expense];
+    if (allCategories.some(cat => cat.name.toLowerCase() === categoryName.toLowerCase())) {
+        showToast('该分类已存在', 'error');
+        return;
+    }
+    
+    // 自动分配颜色
+    const colors = {
+        income: ['#1976D2', '#F57C00', '#7B1FA2', '#00796B', '#795548', '#E91E63', '#009688', '#FF5722', '#3F51B5', '#607D8B'],
+        expense: ['#D32F2F', '#388E3C', '#303F9F', '#FF6F00', '#C2185B', '#00838F', '#5D4037', '#455A64', '#E65100', '#4A148C', '#1B5E20', '#B71C1C']
+    };
+    const usedColors = categories[categoryType].map(cat => cat.color);
+    let newColor = colors[categoryType].find(c => !usedColors.includes(c)) || colors[categoryType][0];
+    
+    try {
+        const response = await apiRequest('/api/accounting/categories', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: categoryName,
+                type: categoryType,
+                color: newColor
+            })
+        });
+        
+        if (response && response.ok) {
+            const result = await response.json();
+            if (result.code === 0) {
+                showToast('分类添加成功！', 'success');
+                newCategoryInput.value = '';
+                categoryModal.classList.add('hidden');
+                await loadAccountingDataAndUpdateCharts();
+                
+                setTimeout(() => {
+                    const newCategoryOption = categorySelect.querySelector(`option[value="${result.data.id}"]`);
+                    if (newCategoryOption && newCategoryOption.getAttribute('data-type') === currentRecordType) {
+                        categorySelect.value = result.data.id;
+                    }
+                }, 100);
+            } else {
+                showToast(result.msg || '添加分类失败', 'error');
+            }
+        } else {
+            showToast('添加分类失败', 'error');
+        }
+    } catch (error) {
+        console.error('添加分类错误:', error);
+        showToast('添加分类失败', 'error');
+    }
+}
+
+// 关闭编辑模态框
+function closeEditModal() {
+    currentEditingRecordId = null;
+    editModal.classList.add('hidden');
+}
+
+function showToast(message, type = 'info') {
+    console.log(`[TOAST] ${type.toUpperCase()}: ${message}`);
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.textContent = message;
+        toast.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-500 z-50';
+        if (type === 'error') {
+            toast.classList.add('bg-red-600', 'text-white');
+        } else if (type === 'success') {
+            toast.classList.add('bg-green-600', 'text-white');
+        } else {
+            toast.classList.add('bg-primary', 'text-white');
+        }
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+        
+        setTimeout(() => {
+            toast.style.transform = 'translateY(4rem)';
+            toast.style.opacity = '0';
+        }, 3000);
+    }
+}
+
+// 工具函数
+function updateFilterButtons() {
+    filterButtons.forEach(btn => {
+        const filter = btn.id.replace('filter-', '').replace('-records', '');
+        if (filter === currentRecordFilter) {
+            btn.classList.add('bg-primary', 'text-white');
+            btn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+        } else {
+            btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+            btn.classList.remove('bg-primary', 'text-white');
+        }
+    });
+}
+
+// 修复图表更新函数
+function updateCharts() {
+    try {
+        console.log('[DEBUG] === 开始图表更新 ===');
+        
+        if (!incomeChart || !expenseChart) {
+            console.error('[ERROR] 图表对象不存在');
+            return;
+        }
+
+        if (!categories || !categories.income || !categories.expense) {
+            console.error('[ERROR] 分类数据不完整');
+            return;
+        }
+
+        if (!records || !Array.isArray(records)) {
+            console.error('[ERROR] 记录数据无效');
+            return;
+        }
+
+        // 按本月筛选记录
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const monthRecords = records.filter(record => {
+            const recordDate = new Date(record.date);
+            const recordMonth = recordDate.getMonth();
+            const recordYear = recordDate.getFullYear();
+            return recordMonth === currentMonth && recordYear === currentYear;
+        });
+
+        // 收入数据统计
+        const incomeStats = {};
+        categories.income.forEach(cat => {
+            incomeStats[cat.id] = { name: cat.name, color: cat.color || '#4CAF50', total: 0 };
+        });
+
+        monthRecords.forEach(record => {
+            const categoryId = record.category_id || (record.category ? record.category.id : null);
+            if (record.type === 'income' && categoryId && incomeStats[categoryId]) {
+                incomeStats[categoryId].total += parseFloat(record.amount);
+            }
+        });
+
+        // 支出数据统计
+        const expenseStats = {};
+        categories.expense.forEach(cat => {
+            expenseStats[cat.id] = { name: cat.name, color: cat.color || '#FF4444', total: 0 };
+        });
+
+        monthRecords.forEach(record => {
+            const categoryId = record.category_id || (record.category ? record.category.id : null);
+            if (record.type === 'expense' && categoryId && expenseStats[categoryId]) {
+                expenseStats[categoryId].total += parseFloat(record.amount);
+            }
+        });
+
+        // 构建图表数据
+        const incomeLabels = [];
+        const incomeData = [];
+        const incomeColors = [];
+        Object.values(incomeStats).forEach(stat => {
+            if (stat.total > 0) {
+                incomeLabels.push(stat.name);
+                incomeData.push(stat.total);
+                incomeColors.push(stat.color);
+            }
+        });
+
+        const expenseLabels = [];
+        const expenseData = [];
+        const expenseColors = [];
+        Object.values(expenseStats).forEach(stat => {
+            if (stat.total > 0) {
+                expenseLabels.push(stat.name);
+                expenseData.push(stat.total);
+                expenseColors.push(stat.color);
+            }
+        });
+
+        // 控制空数据提示显示
+        const incomeEmpty = document.getElementById('income-chart-empty');
+        const expenseEmpty = document.getElementById('expense-chart-empty');
+        
+        if (incomeEmpty) {
+            incomeEmpty.style.display = incomeLabels.length === 0 ? 'block' : 'none';
+        }
+        if (expenseEmpty) {
+            expenseEmpty.style.display = expenseLabels.length === 0 ? 'block' : 'none';
+        }
+
+        // 更新图表
+        if (incomeLabels.length > 0) {
+            incomeChart.data.labels = incomeLabels;
+            incomeChart.data.datasets[0].data = incomeData;
+            incomeChart.data.datasets[0].backgroundColor = incomeColors;
+            incomeChart.data.datasets[0].hoverBackgroundColor = incomeColors;
+        } else {
+            incomeChart.data.labels = ['暂无数据'];
+            incomeChart.data.datasets[0].data = [1];
+            incomeChart.data.datasets[0].backgroundColor = ['#E0E0E0'];
+            incomeChart.data.datasets[0].hoverBackgroundColor = ['#E0E0E0'];
+        }
+        
+        if (expenseLabels.length > 0) {
+            expenseChart.data.labels = expenseLabels;
+            expenseChart.data.datasets[0].data = expenseData;
+            expenseChart.data.datasets[0].backgroundColor = expenseColors;
+            expenseChart.data.datasets[0].hoverBackgroundColor = expenseColors;
+        } else {
+            expenseChart.data.labels = ['暂无数据'];
+            expenseChart.data.datasets[0].data = [1];
+            expenseChart.data.datasets[0].backgroundColor = ['#E0E0E0'];
+            expenseChart.data.datasets[0].hoverBackgroundColor = ['#E0E0E0'];
+        }
+
+        incomeChart.update('none');
+        expenseChart.update('none');
+        console.log('[DEBUG] 图表更新完成');
+
+    } catch (error) {
+        console.error('[ERROR] 图表更新失败:', error);
+    }
+}
+</script>
+</body>
+</html>
