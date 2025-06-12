@@ -58,69 +58,111 @@
         }
     </style>
 </head>
-<body class="bg-neutral min-h-screen font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- 顶部导航 -->
-        <header class="mb-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-primary">
-                    <i class="fa-solid fa-list-check mr-2"></i>ToDoList
-                </h1>
-                <button id="back-btn" class="text-primary hover:text-accent transition-colors duration-300">
-                    <i class="fa-solid fa-arrow-left text-xl"></i>
+<body class="bg-gradient-to-br from-neutral via-neutral to-amber-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-6 max-w-5xl">
+        <!-- 顶部导航卡片 -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10">
+            <div class="flex items-center gap-6">
+                <button id="back-btn" class="group flex items-center justify-center w-12 h-12 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <i class="fa-solid fa-arrow-left text-lg group-hover:translate-x-0.5 transition-transform duration-300"></i>
                 </button>
+                <div class="flex-1">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-primary flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-list-check text-xl"></i>
+                        </div>
+                        ToDoList
+                    </h1>
+                    <p class="text-gray-600 mt-2 text-lg">记录你的日常任务，保持高效生活</p>
+                </div>
             </div>
-            <p class="text-gray-600 mt-2">记录你的日常任务，保持高效生活</p>
-        </header>
+        </div>
 
         <!-- 添加新任务区域 -->
-        <div class="bg-white rounded-lg p-5 mb-8 shadow-lg slide-up">
-            <h2 class="text-xl font-semibold text-primary mb-4">添加新任务</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10 slide-up">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-white text-sm"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-primary">添加新任务</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <input 
                     type="text" 
                     id="new-task-input" 
                     placeholder="输入你的任务..." 
-                    class="md:col-span-2 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
+                    class="lg:col-span-2 px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white/80 text-lg placeholder-gray-400"
                 >
                 <input 
                     type="datetime-local" 
                     id="new-task-deadline" 
                     placeholder="年/月/日 时:分"
-                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300"
+                    class="px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white/80 text-lg"
                 >
                 <button 
                     id="add-task-btn" 
-                    class="md:col-span-3 bg-primary hover:bg-accent text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center"
+                    class="lg:col-span-3 bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center text-lg"
                 >
-                    <i class="fa-solid fa-plus mr-2"></i>添加任务
+                    <i class="fa-solid fa-plus mr-3"></i>添加任务
                 </button>
             </div>
         </div>
 
         <!-- 任务列表区域 -->
-        <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-primary">我的任务</h2>
-                <div class="flex gap-2">
-                    <button id="filter-all" class="filter-btn bg-primary text-white px-4 py-2 rounded-lg">全部</button>
-                    <button id="filter-active" class="filter-btn bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-colors">进行中</button>
-                    <button id="filter-completed" class="filter-btn bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-colors">已完成</button>
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10 fade-in">
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-tasks text-white text-sm"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-primary">我的任务</h2>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-2">
+                    <button id="filter-all" class="filter-btn bg-primary text-white px-5 py-2.5 rounded-xl font-medium whitespace-nowrap">全部</button>
+                    <button id="filter-active" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl transition-colors font-medium whitespace-nowrap">进行中</button>
+                    <button id="filter-completed" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl transition-colors font-medium whitespace-nowrap">已完成</button>
                 </div>
             </div>
             
-            <!-- 任务统计 -->
-            <div class="text-sm text-gray-500 mb-4" id="task-stats">
-                总计: <span id="total-tasks">0</span> | 已完成: <span id="completed-tasks">0</span> | 
-                即将截止: <span id="urgent-tasks">0</span>
+            <!-- 任务统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-600 text-sm font-medium">总任务</p>
+                            <p class="text-2xl font-bold text-blue-700" id="total-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-list text-blue-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 text-sm font-medium">已完成</p>
+                            <p class="text-2xl font-bold text-green-700" id="completed-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-check-circle text-green-500 text-xl"></i>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-600 text-sm font-medium">即将截止</p>
+                            <p class="text-2xl font-bold text-orange-700" id="urgent-tasks">0</p>
+                        </div>
+                        <i class="fa-solid fa-clock text-orange-500 text-xl"></i>
+                    </div>
+                </div>
             </div>
-            
+
             <!-- 批量操作区域 -->
-            <div class="flex items-center mb-4 bg-gray-100 rounded-lg px-4 py-2 shadow-sm">
-                <input type="checkbox" id="select-all-tasks" class="mr-2 accent-primary scale-125 rounded focus:ring-primary border-gray-300">
-                <label for="select-all-tasks" class="mr-4 select-none text-gray-700 font-medium">全选</label>
-                <button id="delete-selected-btn" class="bg-accent hover:bg-primary text-white px-4 py-2 rounded transition-colors font-semibold shadow-sm ml-2">
-                    <i class="fa-solid fa-trash mr-1"></i>批量删除
+            <div class="flex items-center gap-4 mb-6 bg-gray-50 rounded-xl px-5 py-3 border border-gray-200">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="select-all-tasks" class="w-5 h-5 accent-primary rounded focus:ring-primary border-gray-300">
+                    <span class="text-gray-700 font-medium">全选任务</span>
+                </label>
+                <button id="delete-selected-btn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2 rounded-lg transition-all duration-300 font-medium shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trash text-sm"></i>批量删除
                 </button>
             </div>
             
@@ -130,10 +172,12 @@
             </ul>
             
             <!-- 空状态 -->
-            <div id="empty-state" class="py-12 text-center">
-                <i class="fa-solid fa-clipboard-list text-5xl text-gray-300 mb-4"></i>
-                <p class="text-gray-500">暂无任务</p>
-                <p class="text-gray-400 text-sm mt-2">添加一个新任务开始你的一天吧</p>
+            <div id="empty-state" class="py-16 text-center">
+                <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-clipboard-list text-4xl text-gray-400"></i>
+                </div>
+                <p class="text-xl text-gray-500 font-medium">暂无任务</p>
+                <p class="text-gray-400 mt-2">添加一个新任务开始你的一天吧</p>
             </div>
         </div>
     </div>
@@ -163,8 +207,8 @@
     <!-- 提示框 -->
     <div id="toast" class="fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-16 opacity-0 transition-all duration-500 z-50"></div>
 
-    <!-- 自定义确认对话框 -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <!-- 自定义确认对话框 - 提高z-index -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
             <div class="flex flex-col items-center mb-4">
                 <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
@@ -210,7 +254,7 @@
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
             backBtn.onclick = function() {
-                window.location.href = 'main.html';
+                window.location.replace('main.html');
             };
         }
         

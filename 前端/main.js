@@ -1,6 +1,4 @@
 // 检查登录状态和初始化
-// 只保留一份登录检查逻辑，避免死循环
-
 document.addEventListener('DOMContentLoaded', function(){
     // 检查用户是否已登录
     const token = localStorage.getItem('token');
@@ -10,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function(){
         return;
     }
     try {
-        // 只在有 user-welcome 元素时显示用户名
+        // 显示用户名
         const userData = JSON.parse(user);
         const welcomeElement = document.getElementById('user-welcome');
         if (welcomeElement) {
@@ -36,7 +34,10 @@ function logout() {
         }).finally(() => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'sign_in.html';
+            showToast('已成功退出登录', 'success');
+            setTimeout(() => {
+                window.location.href = 'sign_in.html';
+            }, 1500);
         });
     }
 }

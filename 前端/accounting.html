@@ -99,236 +99,243 @@
             .smooth-scroll {
                 scroll-behavior: smooth;
             }
+        
+            /* 优化表格行高 */
+            .records-table-row {
+                height: 52px; /* 固定行高，确保一致性 */
+            }
+            
+            /* 表格容器优化 */
+            .records-container {
+                height: 520px; /* 固定高度，大约可显示10行记录 */
+            }
+            
+            /* 确保表格内容填满容器 */
+            .records-table {
+                height: 100%;
+            }
+            
+            /* 优化表格单元格 */
+            .records-table td,
+            .records-table th {
+                vertical-align: middle;
+                white-space: nowrap;
+            }
+            
+            /* 响应式调整 */
+            @media (max-width: 1280px) {
+                .records-container {
+                    height: 450px; /* 中等屏幕 */
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .records-container {
+                    height: 400px; /* 小屏幕 */
+                }
+            }
         }
     </style>
 </head>
-<body class="bg-neutral min-h-screen font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- 顶部导航 -->
-        <header class="mb-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-primary">
-                    <span class="circle-currency">¥</span>生活记账
-                </h1>
-                <div class="flex gap-2">
-                    <button id="back-btn" class="text-primary hover:text-accent transition-colors duration-300">
-                        <i class="fa-solid fa-arrow-left text-xl"></i>
-                    </button>
-                    <!-- 删除退出登录按钮图标 -->
-                    <!-- <button id="logout-btn" class="text-primary hover:text-red-500 transition-colors duration-300" title="退出登录">
-                        <i class="fa-solid fa-right-from-bracket text-xl"></i>
-                    </button> -->
+<body class="bg-gradient-to-br from-neutral via-neutral to-emerald-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- 顶部导航卡片 -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10">
+            <div class="flex items-center gap-6">
+                <button id="back-btn" class="group flex items-center justify-center w-12 h-12 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <i class="fa-solid fa-arrow-left text-lg group-hover:translate-x-0.5 transition-transform duration-300"></i>
+                </button>
+                <div class="flex-1">
+                    <h1 class="text-3xl lg:text-4xl font-bold text-primary flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center text-white">
+                            <span class="font-bold text-xl">¥</span>
+                        </div>
+                        生活记账
+                    </h1>
+                    <p class="text-gray-600 mt-2 text-lg">记录每一笔收支，掌握财务状况</p>
                 </div>
             </div>
-            <p class="text-gray-600 mt-2">记录每一笔收支，掌握财务状况</p>
-        </header>
+        </div>
+
+        <!-- 统计概览卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-emerald-100 text-sm font-medium">本月收入</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-income">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-arrow-trend-up text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-red-100 text-sm font-medium">本月支出</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-expense">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-arrow-trend-down text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-primary to-accent rounded-2xl p-6 text-white shadow-xl">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-amber-100 text-sm font-medium">本月结余</p>
+                        <h3 class="text-3xl font-bold mt-2" id="month-balance">¥0.00</h3>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-xl">
+                        <i class="fa-solid fa-wallet text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- 添加新记录区域 -->
-        <div class="bg-white rounded-lg p-5 mb-8 shadow-lg slide-up">
-            <h2 class="text-xl font-semibold text-primary mb-4">添加新记录</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-xl border border-primary/10 slide-up">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-white text-sm"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-primary">添加新记录</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">类型</label>
-                    <div class="flex">
-                        <button id="income-btn" class="flex-1 py-2 px-4 bg-income text-white rounded-l-lg transition-all duration-300">
-                            <i class="fa-solid fa-arrow-down mr-1"></i> 收入
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">收支类型</label>
+                    <div class="flex rounded-xl overflow-hidden border-2 border-gray-200">
+                        <button id="income-btn" class="flex-1 py-3 px-6 bg-emerald-500 text-white font-medium transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up"></i> 收入
                         </button>
-                        <button id="expense-btn" class="flex-1 py-2 px-4 bg-gray-200 text-gray-700 rounded-r-lg transition-all duration-300">
-                            <i class="fa-solid fa-arrow-up mr-1"></i> 支出
+                        <button id="expense-btn" class="flex-1 py-3 px-6 bg-gray-100 text-gray-700 font-medium transition-all duration-300 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-down"></i> 支出
                         </button>
                     </div>
                 </div>
                 
-                <div class="md:col-span-2">
-                    <div class="flex items-center gap-3">
+                <div class="lg:col-span-2">
+                    <div class="flex items-end gap-4">
                         <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
-                            <select id="category-select" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">分类</label>
+                            <select id="category-select" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 bg-white text-lg">
                                 <option value="">请选择分类</option>
-                                <!-- 分类选项将通过JavaScript动态生成 -->
                             </select>
                         </div>
-                        <button id="add-category-btn" class="mt-5 px-4 py-2 bg-primary hover:bg-accent text-white rounded-lg transition-all duration-300 flex items-center justify-center font-medium">
-                            管理标签
+                        <button id="add-category-btn" class="bg-gradient-to-r from-primary to-accent text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-cog"></i>管理分类
                         </button>
                     </div>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">金额</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">金额</label>
                     <input type="number" id="amount-input" placeholder="0.00" step="0.01" min="0" 
-                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">日期</label>
                     <input type="date" id="date-input" 
-                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
                 </div>
                 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">备注（可选）</label>
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">备注（可选）</label>
                     <input type="text" id="note-input" placeholder="添加备注..." 
-                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 text-lg">
                 </div>
                 
-                <button id="add-record-btn" class="md:col-span-2 bg-primary hover:bg-accent text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center">
-                    <i class="fa-solid fa-plus mr-2"></i>添加记录
+                <button id="add-record-btn" class="lg:col-span-2 bg-gradient-to-r from-primary to-accent text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg flex items-center justify-center text-lg gap-3">
+                    <i class="fa-solid fa-plus"></i>添加记录
                 </button>
             </div>
         </div>
 
-        <!-- 分类管理模态框 -->
-        <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up max-h-[90vh] flex flex-col">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-primary">管理分类</h3>
-                    <button id="close-category-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fa-solid fa-times"></i>
+        <!-- 图表和记录区域 -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- 图表区域 -->
+            <div class="space-y-6">
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+                    <h3 class="text-xl font-bold text-emerald-600 mb-4 flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-emerald-500"></i> 收入分类占比
+                    </h3>
+                    <div class="h-64 flex items-center justify-center relative">
+                        <canvas id="income-chart" class="w-full h-full"></canvas>
+                        <div id="income-chart-empty" class="absolute text-gray-400 text-center hidden">暂无收入数据</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+                    <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-red-500"></i> 支出分类占比
+                    </h3>
+                    <div class="h-64 flex items-center justify-center relative">
+                        <canvas id="expense-chart" class="w-full h-full"></canvas>
+                        <div id="expense-chart-empty" class="absolute text-gray-400 text-center hidden">暂无支出数据</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近记录 -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10 flex flex-col">
+                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-history text-white text-sm"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-primary">最近记录</h2>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        <button id="filter-all-records" class="filter-btn bg-primary text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">全部</button>
+                        <button id="filter-income" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">收入</button>
+                        <button id="filter-expense" class="filter-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium whitespace-nowrap">支出</button>
+                    </div>
+                </div>
+
+                <!-- 批量操作区域 -->
+                <div class="flex items-center gap-4 mb-4 bg-gray-50 rounded-xl px-4 py-3">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="select-all-records" class="w-5 h-5 accent-primary rounded">
+                        <span class="text-gray-700 font-medium">全选</span>
+                    </label>
+                    <button id="delete-selected-records-btn" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-trash text-sm"></i>批量删除
                     </button>
                 </div>
                 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">添加新分类</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-category-input" placeholder="输入分类名称" 
-                            class="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                        <select id="new-category-type" class="py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
-                            <option value="income">收入</option>
-                            <option value="expense">支出</option>
-                        </select>
-                        <button id="confirm-add-category" class="px-4 py-2 bg-primary text-white rounded-lg transition-all duration-300">
-                            添加
-                        </button>
+                <!-- 记录表格 - 进一步增加高度 -->
+                <div class="flex-1 overflow-hidden rounded-xl border border-gray-200">
+                    <div class="overflow-x-auto h-full custom-scrollbar records-container" style="height: 520px;">
+                        <table class="min-w-full divide-y divide-gray-200 h-full records-table">
+                            <thead class="bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">选择</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">日期</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">分类</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">备注</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">金额</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-table" class="bg-white divide-y divide-gray-100">
+                                <!-- 记录会通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 
-                <!-- 添加滚动容器 -->
-                <div class="border-t pt-4 flex-1 overflow-y-auto max-h-96 custom-scrollbar">
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">收入分类</h4>
-                            <ul id="income-categories" class="space-y-2 mb-4 max-h-32 overflow-y-auto pr-2">
-                                <!-- 收入分类将通过JavaScript动态生成 -->
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">支出分类</h4>
-                            <ul id="expense-categories" class="space-y-2 max-h-32 overflow-y-auto pr-2">
-                                <!-- 支出分类将通过JavaScript动态生成 -->
-                            </ul>
-                        </div>
+                <!-- 空状态 -->
+                <div id="empty-records" class="py-12 text-center hidden">
+                    <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-receipt text-3xl text-gray-400"></i>
                     </div>
+                    <p class="text-lg text-gray-500 font-medium">暂无记录</p>
+                    <p class="text-gray-400 mt-1">添加一笔收支开始记录吧</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- 统计概览 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 text-sm">本月收入</p>
-                        <h3 class="text-2xl font-bold text-income mt-1" id="month-income">¥0.00</h3>
-                    </div>
-                    <div class="bg-income/10 p-2 rounded-full">
-                        <i class="fa-solid fa-arrow-down text-income"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 text-sm">本月支出</p>
-                        <h3 class="text-2xl font-bold text-expense mt-1" id="month-expense">¥0.00</h3>
-                    </div>
-                    <div class="bg-expense/10 p-2 rounded-full">
-                        <i class="fa-solid fa-arrow-up text-expense"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-gray-500 text-sm">本月结余</p>
-                        <h3 class="text-2xl font-bold text-primary mt-1" id="month-balance">¥0.00</h3>
-                    </div>
-                    <div class="bg-primary/10 p-2 rounded-full">
-                        <i class="fa-solid fa-balance-scale text-primary"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 图表区域 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
-                    <i class="fa-solid fa-arrow-down text-income mr-2"></i> 收入分类占比
-                </h3>
-                <div class="h-64 flex items-center justify-center relative">
-                    <canvas id="income-chart" class="w-full h-full"></canvas>
-                    <div id="income-chart-empty" class="absolute text-gray-400 text-center hidden">暂无收入数据</div>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-                <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
-                    <i class="fa-solid fa-arrow-up text-expense mr-2"></i> 支出分类占比
-                </h3>
-                <div class="h-64 flex items-center justify-center relative">
-                    <canvas id="expense-chart" class="w-full h-full"></canvas>
-                    <div id="expense-chart-empty" class="absolute text-gray-400 text-center hidden">暂无支出数据</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 最近记录 -->
-        <div class="bg-white rounded-lg p-5 shadow-lg fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-primary">最近记录</h2>
-                <div class="flex gap-2">
-                    <button id="filter-all-records" class="filter-btn bg-primary text-white px-4 py-2 rounded-lg">全部</button>
-                    <button id="filter-income" class="filter-btn bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-colors">收入</button>
-                    <button id="filter-expense" class="filter-btn bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg transition-colors">支出</button>
-                </div>
-            </div>
-
-            <!-- 批量操作区域 -->
-            <div class="flex items-center mb-4 bg-gray-100 rounded-lg px-4 py-2 shadow-sm">
-                <input type="checkbox" id="select-all-records" class="mr-2 accent-primary scale-125 rounded focus:ring-primary border-gray-300">
-                <label for="select-all-records" class="mr-4 select-none text-gray-700 font-medium">全选</label>
-                <button id="delete-selected-records-btn" class="bg-accent hover:bg-primary text-white px-4 py-2 rounded transition-colors font-semibold shadow-sm ml-2">
-                    <i class="fa-solid fa-trash mr-1"></i>批量删除
-                </button>
-            </div>
-            
-            <!-- 记录列表 -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">选择</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="records-table" class="bg-white divide-y divide-gray-200">
-                        <!-- 记录会通过JavaScript动态添加 -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- 空状态 -->
-            <div id="empty-records" class="py-12 text-center hidden">
-                <i class="fa-solid fa-file-invoice text-5xl text-gray-300 mb-4"></i>
-                <p class="text-gray-500">暂无记录</p>
-                <p class="text-gray-400 text-sm mt-2">添加一笔收支开始记录吧</p>
             </div>
         </div>
     </div>
@@ -386,8 +393,8 @@
     <!-- 提示框 -->
     <div id="toast" class="fixed bottom-4 right-4 bg-primary text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-16 opacity-0 transition-all duration-500 z-50"></div>
 
-    <!-- 自定义确认对话框 -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+    <!-- 自定义确认对话框 - 提高z-index -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
             <div class="flex flex-col items-center mb-4">
                 <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
@@ -405,6 +412,52 @@
                 <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                     确定
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类管理模态框 - 保持z-50 -->
+    <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden fade-in">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl slide-up max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-primary">管理分类</h3>
+                <button id="close-category-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">添加新分类</label>
+                <div class="flex gap-2">
+                    <input type="text" id="new-category-input" placeholder="输入分类名称" 
+                        class="flex-1 py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                    <select id="new-category-type" class="py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <option value="income">收入</option>
+                        <option value="expense">支出</option>
+                    </select>
+                    <button id="confirm-add-category" class="px-4 py-2 bg-primary text-white rounded-lg transition-all duration-300">
+                        添加
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 添加滚动容器 -->
+            <div class="border-t pt-4 flex-1 overflow-y-auto max-h-96 custom-scrollbar">
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">收入分类</h4>
+                        <ul id="income-categories" class="space-y-2 mb-4 max-h-32 overflow-y-auto pr-2">
+                            <!-- 收入分类将通过JavaScript动态生成 -->
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-700 mb-2 sticky top-0 bg-white py-1 border-b border-gray-100">支出分类</h4>
+                        <ul id="expense-categories" class="space-y-2 max-h-32 overflow-y-auto pr-2">
+                            <!-- 支出分类将通过JavaScript动态生成 -->
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -593,7 +646,7 @@ function renderRecords() {
     filteredRecords.forEach(record => {
         const row = document.createElement('tr');
         row.dataset.id = record.id;
-        row.classList.add('hover:bg-gray-50', 'transition-colors', 'cursor-pointer');
+        row.classList.add('hover:bg-gray-50', 'transition-colors', 'cursor-pointer', 'records-table-row');
         row.innerHTML = `
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                 <input type="checkbox" class="select-record-checkbox accent-primary scale-125 rounded focus:ring-primary border-gray-300" data-record-id="${record.id}">
@@ -1020,80 +1073,112 @@ document.addEventListener('DOMContentLoaded', () => {
     incomeBtn.addEventListener('click', () => setRecordType('income'));
     expenseBtn.addEventListener('click', () => setRecordType('expense'));
     addRecordBtn.addEventListener('click', addRecord);
-    backBtn.addEventListener('click', () => window.location.href = 'main.html');
+    backBtn.addEventListener('click', () => window.location.replace('main.html'));
 
-    // 分类管理模态框事件
-    addCategoryBtn.addEventListener('click', () => {
-        categoryModal.classList.remove('hidden');
-        renderCategoryManagementLists();
-    });
-    
-    closeCategoryModal.addEventListener('click', () => {
-        categoryModal.classList.add('hidden');
-    });
-    
-    confirmAddCategory.addEventListener('click', addNewCategory);
-
-    // 编辑模态框事件
-    editIncomeBtn.addEventListener('click', () => setEditRecordType('income'));
-    editExpenseBtn.addEventListener('click', () => setEditRecordType('expense'));
-    saveEditBtn.addEventListener('click', saveEdit);
-    cancelEditBtn.addEventListener('click', closeEditModal);
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            currentRecordFilter = e.target.id.replace('filter-', '').replace('-records', '');
-            updateFilterButtons();
-            renderRecords();
+    // 分类管理模态框事件 - 添加安全检查
+    if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', () => {
+            const categoryModal = document.getElementById('category-modal');
+            if (categoryModal) {
+                categoryModal.classList.remove('hidden');
+                renderCategoryManagementLists();
+            }
         });
-    });
+    }
+    
+    if (closeCategoryModal) {
+        closeCategoryModal.addEventListener('click', () => {
+            const categoryModal = document.getElementById('category-modal');
+            if (categoryModal) {
+                categoryModal.classList.add('hidden');
+            }
+        });
+    }
+    
+    if (confirmAddCategory) {
+        confirmAddCategory.addEventListener('click', addNewCategory);
+    }
 
-    recordsTable.addEventListener('click', (e) => {
-        const editBtn = e.target.closest('.edit-record-btn');
-        if (editBtn) {
-            const recordId = parseInt(editBtn.closest('tr').dataset.id);
-            startEditing(recordId);
-        }
-        const deleteBtn = e.target.closest('.delete-record-btn');
-        if (deleteBtn) {
-            const recordId = parseInt(deleteBtn.closest('tr').dataset.id);
-            deleteRecord(recordId);
-        }
-    });
+    // 编辑模态框事件 - 添加安全检查
+    if (editIncomeBtn) {
+        editIncomeBtn.addEventListener('click', () => setEditRecordType('income'));
+    }
+    if (editExpenseBtn) {
+        editExpenseBtn.addEventListener('click', () => setEditRecordType('expense'));
+    }
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener('click', saveEdit);
+    }
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', closeEditModal);
+    }
 
-    // 批量操作事件绑定
+    // 过滤按钮事件 - 添加安全检查
+    if (filterButtons && filterButtons.length > 0) {
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentRecordFilter = e.target.id.replace('filter-', '').replace('-records', '');
+                updateFilterButtons();
+                renderRecords();
+            });
+        });
+    }
+
+    // 记录表格事件 - 添加安全检查
+    if (recordsTable) {
+        recordsTable.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-record-btn');
+            if (editBtn) {
+                const recordId = parseInt(editBtn.closest('tr').dataset.id);
+                startEditing(recordId);
+            }
+            const deleteBtn = e.target.closest('.delete-record-btn');
+            if (deleteBtn) {
+                const recordId = parseInt(deleteBtn.closest('tr').dataset.id);
+                deleteRecord(recordId);
+            }
+        });
+    }
+
+    // 批量操作事件绑定 - 添加安全检查
     const selectAllRecordsBox = document.getElementById('select-all-records');
     const deleteSelectedRecordsBtn = document.getElementById('delete-selected-records-btn');
     
-    selectAllRecordsBox.addEventListener('change', function() {
-        document.querySelectorAll('.select-record-checkbox').forEach(cb => {
-            cb.checked = selectAllRecordsBox.checked;
+    if (selectAllRecordsBox) {
+        selectAllRecordsBox.addEventListener('change', function() {
+            document.querySelectorAll('.select-record-checkbox').forEach(cb => {
+                cb.checked = selectAllRecordsBox.checked;
+            });
         });
-    });
+    }
     
-    deleteSelectedRecordsBtn.addEventListener('click', async function() {
-        const checked = Array.from(document.querySelectorAll('.select-record-checkbox:checked'));
-        if (checked.length === 0) {
-            showToast('请先选择要删除的记录', 'error');
-            return;
-        }
-        
-        showConfirm(
-            '批量删除记录',
-            `确定要删除选中的 ${checked.length} 条记录吗？此操作不可恢复。`,
-            async () => {
-                for (const cb of checked) {
-                    const recordId = cb.getAttribute('data-record-id');
-                    await deleteAccountingRecord(recordId);
-                }
-                // 重新加载数据
-                await loadAccountingDataAndUpdateCharts();
-                // 取消全选状态
-                selectAllRecordsBox.checked = false;
-                showToast(`成功删除 ${checked.length} 条记录`, 'success');
+    if (deleteSelectedRecordsBtn) {
+        deleteSelectedRecordsBtn.addEventListener('click', async function() {
+            const checked = Array.from(document.querySelectorAll('.select-record-checkbox:checked'));
+            if (checked.length === 0) {
+                showToast('请先选择要删除的记录', 'error');
+                return;
             }
-        );
-    });
+            
+            showConfirm(
+                '批量删除记录',
+                `确定要删除选中的 ${checked.length} 条记录吗？此操作不可恢复。`,
+                async () => {
+                    for (const cb of checked) {
+                        const recordId = cb.getAttribute('data-record-id');
+                        await deleteAccountingRecord(recordId);
+                    }
+                    // 重新加载数据
+                    await loadAccountingDataAndUpdateCharts();
+                    // 取消全选状态
+                    if (selectAllRecordsBox) {
+                        selectAllRecordsBox.checked = false;
+                    }
+                    showToast(`成功删除 ${checked.length} 条记录`, 'success');
+                }
+            );
+        });
+    }
 
     console.log('[DEBUG] 开始加载数据...');
     loadAccountingDataAndUpdateCharts();

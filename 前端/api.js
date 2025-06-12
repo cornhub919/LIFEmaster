@@ -225,8 +225,12 @@ async function loadHandbooks() {
     const response = await apiRequest('/api/handbooks');
     if (response && response.ok) {
         const data = await response.json();
-        displayHandbooks(data);
+        if (typeof displayHandbooks === 'function') {
+            displayHandbooks(data);
+        }
+        return data;
     }
+    return null;
 }
 
 async function addHandbook(title, content) {
@@ -241,8 +245,20 @@ async function addHandbook(title, content) {
     });
     
     if (response && response.ok) {
-        showToast('手账保存成功', 'success');
-        loadHandbooks();
+        const result = await response.json();
+        if (result.code === 0) {
+            showToast('手账保存成功', 'success');
+            if (typeof loadHandbooks === 'function') {
+                loadHandbooks();
+            }
+            return result;
+        } else {
+            showToast('保存失败: ' + result.msg, 'error');
+            return null;
+        }
+    } else {
+        showToast('保存手账失败', 'error');
+        return null;
     }
 }
 
@@ -258,8 +274,20 @@ async function updateHandbook(handbookId, title, content) {
     });
     
     if (response && response.ok) {
-        showToast('手账更新成功', 'success');
-        loadHandbooks();
+        const result = await response.json();
+        if (result.code === 0) {
+            showToast('手账更新成功', 'success');
+            if (typeof loadHandbooks === 'function') {
+                loadHandbooks();
+            }
+            return result;
+        } else {
+            showToast('更新失败: ' + result.msg, 'error');
+            return null;
+        }
+    } else {
+        showToast('更新手账失败', 'error');
+        return null;
     }
 }
 
@@ -269,8 +297,20 @@ async function deleteHandbook(handbookId) {
     });
     
     if (response && response.ok) {
-        showToast('手账删除成功', 'success');
-        loadHandbooks();
+        const result = await response.json();
+        if (result.code === 0) {
+            showToast('手账删除成功', 'success');
+            if (typeof loadHandbooks === 'function') {
+                loadHandbooks();
+            }
+            return result;
+        } else {
+            showToast('删除失败: ' + result.msg, 'error');
+            return null;
+        }
+    } else {
+        showToast('删除手账失败', 'error');
+        return null;
     }
 }
 

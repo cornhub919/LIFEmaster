@@ -195,6 +195,29 @@
         <span id="toastMessage">操作成功</span>
     </div>
 
+    <!-- 自定义确认对话框 -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden fade-in">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl slide-up">
+            <div class="flex flex-col items-center mb-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center" id="confirm-title">确认操作</h3>
+            </div>
+            <div class="mb-6 text-center">
+                <p class="text-sm text-gray-700 leading-relaxed" id="confirm-message">确定要执行此操作吗？</p>
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-700">
+                    取消
+                </button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 导航栏滚动效果
         const navbar = document.getElementById('navbar');
@@ -208,15 +231,53 @@
             }
         });
 
-        // 退出登录功能
+        // 自定义确认对话框
+        function showConfirm(title, message, okCallback, cancelCallback = null) {
+            const modal = document.getElementById('confirm-modal');
+            const titleElement = document.getElementById('confirm-title');
+            const messageElement = document.getElementById('confirm-message');
+            const okBtn = document.getElementById('confirm-ok-btn');
+            const cancelBtn = document.getElementById('confirm-cancel-btn');
+            
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+            
+            // 移除之前的事件监听器
+            const newOkBtn = okBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            
+            // 添加新的事件监听器
+            newOkBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (okCallback) okCallback();
+            });
+            
+            newCancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (cancelCallback) cancelCallback();
+            });
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+        }
+
+        // 退出登录功能 - 使用自定义确认对话框
         const logoutBtn = document.getElementById('logoutBtn');
         logoutBtn.addEventListener('click', () => {
-            showToast('已成功退出登录', 'fa-sign-out-alt');
-            
-            // 模拟退出登录的延迟跳转
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1500);
+            showConfirm(
+                '退出登录',
+                '确定要退出登录吗？',
+                () => {
+                    showToast('已成功退出登录', 'sign-out-alt');
+                    
+                    // 模拟退出登录的延迟跳转
+                    setTimeout(() => {
+                        window.location.replace('login.html');
+                    }, 1500);
+                }
+            );
         });
 
         // 显示提示框
@@ -246,4 +307,3 @@
     </script>
 </body>
 </html>
-    
