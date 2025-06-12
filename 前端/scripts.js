@@ -1,5 +1,5 @@
-// API基础配置
-const API_BASE_URL = 'https://your-app.railway.app';
+// API基础配置 - 替换为你的真实Render URL
+const API_BASE_URL = 'https://lifemaster-xxxx.onrender.com';
 
 // 提示消息显示函数
 function showToast(message, type = 'info') {

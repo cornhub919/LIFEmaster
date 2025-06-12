@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function(){
 function logout() {
     if (confirm('确定要退出登录吗？')) {
         const token = localStorage.getItem('token');
-        fetch('https://your-app.railway.app/api/auth/logout', {
+        fetch('https://lifemaster-xxxx.onrender.com/api/auth/logout', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

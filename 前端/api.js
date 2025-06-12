@@ -1,6 +1,6 @@
 // API工具函数
 // API基础URL
-const API_BASE_URL = 'https://your-app.railway.app';
+const API_BASE_URL = 'https://lifemaster-xxxx.onrender.com';
 
 // 提示函数
 function showToast(message, type = 'info') {
