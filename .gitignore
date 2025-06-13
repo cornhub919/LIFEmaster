@@ -51,5 +51,3 @@ instance/
 .DS_Store
 Thumbs.db
 
-# Migration files (optional, 如果不想提交迁移文件)
-# migrations/

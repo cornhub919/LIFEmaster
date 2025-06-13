@@ -1,5 +1,6 @@
 // API工具函数
-// API基础URL
+// API基础URL - 使用本地地址
+
 const API_BASE_URL = 'http://localhost:5000';
 
 // 提示函数
@@ -34,6 +35,8 @@ async function apiRequest(url, options = {}) {
         // 默认headers包含认证信息
         const headers = options.headers || getAuthHeaders();
         
+        console.log(`API请求: ${options.method || 'GET'} ${fullUrl}`);
+        
         const response = await fetch(fullUrl, {
             ...options,
             headers
@@ -41,8 +44,22 @@ async function apiRequest(url, options = {}) {
 
         // 若收到 401，跳转到登录
         if (response.status === 401) {
+            console.log('未授权，重定向到登录页面');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
             window.location.href = 'sign_in.html';
             return response;
+        }
+
+        // 记录错误响应
+        if (!response.ok) {
+            console.error(`API错误: ${response.status} ${response.statusText}`);
+            try {
+                const errorData = await response.json();
+                console.error('错误详情:', errorData);
+            } catch (e) {
+                console.error('无法解析错误详情');
+            }
         }
 
         return response;

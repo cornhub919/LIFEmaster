@@ -11,7 +11,7 @@
 }
 
 html {
-    font-size: 16px; /* 设置根字体大小，1rem = 16px */
+    font-size: 20px; /* 设置根字体大小，1rem = 16px */
 }
 
 body {
@@ -24,45 +24,42 @@ body {
     background: rgba(219, 197, 158, 1);
     position: relative; /* 为绝对定位的子元素提供参考 */
     overflow: hidden; /* 防止溢出 */
+    font-family: Arial, sans-serif;
 }
 
-h1 {
+h1, h2, h3 {
+    font-family: "微软雅黑", Arial, sans-serif;
     text-align: left;
     font-size: 2.5rem; /* 使用 rem 单位 */
     font-weight: 400;
     letter-spacing: 0px;
     line-height: 1.2; /* 行高 */
     color: rgba(94, 59, 18, 1);
-    font-family: 'ZCOOLKuaiLe', sans-serif;
     margin-bottom: 3rem; /* 与按钮之间的间距 */
 }
+
 h2 {
     font-size: 2rem; /* 使用 rem 单位 */
     font-weight: 400;
     letter-spacing: 0px;
     line-height: 1.2; /* 行高 */
     color: black;
-    font-family: 'ZCOOLKuaiLe', sans-serif;
+    text-align: center; /* 新增：让 h2 居中 */
 }
 h3 {
     position: absolute;
-    text-align: left;
     top: 0%;
-    font-size: 2.5rem; /* 使用 rem 单位 */
-    font-weight: 400;
-    letter-spacing: 0px;
-    line-height: 1.2; /* 行高 */
-    color: rgba(94, 59, 18, 1);
-    font-family: 'ZCOOLKuaiLe', sans-serif;
     margin-bottom: 3rem; /* 与按钮之间的间距 */
+    text-align: center; /* 新增：让 h3 居中 */
 }
+
 .daily-push {
     animation: fadeIn 1s ease-in-out;
     position: absolute; /* 使用绝对定位 */
     top: 10rem; /* 距离页面顶部 5rem */
-    left: 50%; /* 水平居中 */
+    left: 53%; /* 水平居中 */
     transform: translateX(-50%); /* 修正水平居中的偏移 */
-    font-family: 'HuXiaoBoNanShenTi', sans-serif; /* 使用胡晓波男神体 */
+    font-family: "微软雅黑", Arial, sans-serif; /* 使用胡晓波男神体 */
     width: 80%; /* 文本框宽度占页面的 80% */
     padding: 1rem; /* 内边距 */
     background-color: rgba(255, 255, 255, 0.9); /* 背景色，带透明度 */
@@ -89,9 +86,9 @@ h3 {
 }
 
 button {
-    font-family: 'ZCOOLKuaiLe', sans-serif; /* 使用站酷快乐体 */
+    font-family: "微软雅黑", Arial, sans-serif;
     padding: 0.5rem 1rem; /* 使用 rem 单位 */
-    font-size: 1rem; /* 按钮字体大小 */
+    font-size: 2rem; /* 按钮字体大小 */
     border: none;
     border-radius: 0.3rem;
     cursor: pointer;
@@ -100,8 +97,8 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 8rem; /* 按钮宽度 */
-    height: 3rem; /* 按钮高度 */
+    width:8rem; /* 按钮宽度 */
+    height: 4rem; /* 按钮高度 */
 }
 
 .register-btn {
@@ -120,24 +117,11 @@ button:hover {
     border-radius: 0.6rem;
 }
 
-.image-weekend {
-    top: 0%; /* 距离顶部的百分比 */
-    left: 5%; /* 距离左侧的百分比 */
-    width: 12rem; /* 图片宽度 */
-    height: auto; /* 保持宽高比 */
-}
-
-.image-july {
-    bottom: 20%; /* 距离底部的百分比 */
-    right: 5%; /* 距离右侧的百分比 */
-    width: 8rem; /* 图片宽度 */
-    height: auto; /* 保持宽高比 */
-}
 
 .image-left {
     top: 5%; /* 距离顶部的百分比 */
     left: 5%; /* 距离左侧的百分比 */
-    width: 12rem; /* 图片宽度 */
+    width: 10rem; /* 图片宽度 */
     height: auto; /* 保持宽高比 */
     transform: rotate(-10deg);
     border: 0.3rem solid rgba(94, 59, 18, 1);
@@ -176,14 +160,9 @@ button:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
-    z-index: 1000;
-}
-
-/* 当模态框显示时，启用flexbox居中 */
-.modal[style*="block"] {
-    display: flex !important;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 
 /* 弹窗内容 */
@@ -251,50 +230,25 @@ font-size: 1rem;
 /* 提示框样式 */
 .toast {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 20px;
-    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    font-weight: bold;
-    z-index: 10000;
-    display: none;
-    min-width: 200px;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+    z-index: 1000;
 }
 
-.toast.success {
-    background-color: #4CAF50;
-}
-
-.toast.error {
-    background-color: #f44336;
-}
-
-.toast.info {
-    background-color: #2196F3;
-}
-
-.toast.warning {
-    background-color: #ff9800;
-}
-
-/* 表单提交按钮悬停效果 */
-.submit-btn:hover {
-    background-color: #B37361;
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .toast {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        min-width: auto;
-    }
+/* 显示提示框 */
+.toast.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* 子页面入口容器 */
@@ -322,7 +276,7 @@ font-size: 1rem;
     border-radius: 0.5rem; /* 圆角 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
     text-align: center; /* 文本居中 */
-    font-family: 'HuXiaoBoNanShenTi', sans-serif; /* 修改为胡晓波男神体 */
+    font-family: "微软雅黑", Arial, sans-serif; /* 修改为胡晓波男神体 */
     font-size: 1.5rem; /* 调大字体大小 */
     color: rgba(94, 59, 18, 1); /* 字体颜色 */
     cursor: pointer; /* 鼠标悬停时显示手型 */

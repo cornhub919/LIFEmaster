@@ -1,4 +1,4 @@
-// API基础配置
+// API基础配置 - 使用本地地址
 const API_BASE_URL = 'http://localhost:5000';
 
 // 提示消息显示函数
@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             try {
+                console.log(`尝试登录: ${email}`);
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -119,6 +120,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         password: password
                     })
                 });
+                
+                // 处理网络错误
+                if (!response.ok && response.status !== 401) {
+                    console.error(`登录失败: ${response.status} ${response.statusText}`);
+                    showToast(`登录失败: ${response.status} ${response.statusText}`, 'error');
+                    return;
+                }
                 
                 const data = await response.json();
                 
