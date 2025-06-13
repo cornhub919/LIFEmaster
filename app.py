@@ -42,11 +42,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     f"@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '3306')}/{os.getenv('DB_NAME', 'lifemaster')}"
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-<<<<<<< HEAD
-=======
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 280  # 添加连接池回收时间，防止连接被数据库关闭
 app.config['SQLALCHEMY_POOL_PRE_PING'] = True  # 每次连接前ping一下，确保连接有效
->>>>>>> database
 
 # 配置 JWT
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-secret-key-here-12345')  # 生产环境中应该使用更安全的密钥
@@ -250,12 +247,6 @@ def register():
         db.session.rollback()
         return jsonify({"code": -1, "msg": f"注册失败：{str(e)}"}), 500
 
-<<<<<<< HEAD
-@app.route('/api/auth/login', methods=['POST'])
-def login():
-    try:
-        data = request.get_json()
-=======
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
@@ -264,34 +255,24 @@ def login():
     try:
         data = request.get_json()
         print(f"登录请求数据: {data}")  # 添加调试信息
->>>>>>> database
         
         if not data or 'email' not in data or 'password' not in data:
             return jsonify({"code": -1, "msg": "邮箱和密码不能为空"}), 400
         
         email = data['email']
         password = data['password']
-<<<<<<< HEAD
-        
-        # 查找用户
-        user = User.query.filter_by(email=email).first()
-=======
         print(f"尝试登录邮箱: {email}")  # 添加调试信息
         
         # 查找用户
         user = User.query.filter_by(email=email).first()
         print(f"查找到用户: {user}")  # 添加调试信息
         
->>>>>>> database
         if not user or not check_password_hash(user.password_hash, password):
             return jsonify({"code": -1, "msg": "无效的邮箱或密码"}), 401
         
         # 创建JWT token
         access_token = create_access_token(identity=user.id)
-<<<<<<< HEAD
-=======
         print(f"创建token成功: {access_token[:20]}...")  # 添加调试信息
->>>>>>> database
         
         return jsonify({
             "code": 0,
@@ -303,12 +284,9 @@ def login():
         })
         
     except Exception as e:
-<<<<<<< HEAD
-=======
         print(f"登录错误: {str(e)}")  # 添加调试信息
         import traceback
         traceback.print_exc()  # 打印完整错误堆栈
->>>>>>> database
         return jsonify({"code": -1, "msg": f"登录失败：{str(e)}"}), 500
 
 
@@ -904,11 +882,7 @@ def delete_category(category_id):
         app.logger.error(f"删除分类失败: {str(e)}")
         return jsonify({"code": -1, "msg": f"删除分类失败: {str(e)}"}), 500
 
-<<<<<<< HEAD
-@app.route('/api/admin/init-db', methods=['POST'])
-=======
 @app.route('/api/admin/init-db', methods=['GET', 'POST'])
->>>>>>> database
 def init_database():
     """初始化MySQL数据库（仅限首次部署使用）"""
     try:
@@ -929,11 +903,6 @@ def health_check():
         }
     })
 
-<<<<<<< HEAD
-if __name__ == '__main__':
-    # 修改为云部署配置 - 移除有问题的gunicorn调用
-    port = int(os.environ.get('PORT', 5000))
-=======
 @app.route('/api/admin/check-db', methods=['GET'])
 def check_database():
     """检查当前数据库连接信息"""
@@ -1001,5 +970,4 @@ if __name__ == '__main__':
     print("=== 开始启动Flask服务 ===")
     
     # 修改为生产模式，禁用调试
->>>>>>> database
     app.run(host='0.0.0.0', port=port, debug=False)
