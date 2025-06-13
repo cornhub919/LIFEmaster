@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 // API基础配置 - 替换为你的真实Render URL
 const API_BASE_URL = 'https://lifemaster-xxxx.onrender.com';
+=======
+// API基础配置 - 使用本地地址
+const API_BASE_URL = 'http://localhost:5000';
+>>>>>>> database
 
 // 提示消息显示函数
 function showToast(message, type = 'info') {
@@ -109,6 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             try {
+<<<<<<< HEAD
+=======
+                console.log(`尝试登录: ${email}`);
+>>>>>>> database
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
@@ -120,6 +129,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                 });
                 
+<<<<<<< HEAD
+=======
+                // 处理网络错误
+                if (!response.ok && response.status !== 401) {
+                    console.error(`登录失败: ${response.status} ${response.statusText}`);
+                    showToast(`登录失败: ${response.status} ${response.statusText}`, 'error');
+                    return;
+                }
+                
+>>>>>>> database
                 const data = await response.json();
                 
                 if (data.code === 0) {

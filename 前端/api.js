@@ -1,6 +1,12 @@
 // API工具函数
+<<<<<<< HEAD
 // API基础URL
 const API_BASE_URL = 'https://lifemaster-xxxx.onrender.com';
+=======
+// API基础URL - 使用本地地址
+
+const API_BASE_URL = 'http://localhost:5000';
+>>>>>>> database
 
 // 提示函数
 function showToast(message, type = 'info') {
@@ -34,6 +40,11 @@ async function apiRequest(url, options = {}) {
         // 默认headers包含认证信息
         const headers = options.headers || getAuthHeaders();
         
+<<<<<<< HEAD
+=======
+        console.log(`API请求: ${options.method || 'GET'} ${fullUrl}`);
+        
+>>>>>>> database
         const response = await fetch(fullUrl, {
             ...options,
             headers
@@ -41,10 +52,30 @@ async function apiRequest(url, options = {}) {
 
         // 若收到 401，跳转到登录
         if (response.status === 401) {
+<<<<<<< HEAD
+=======
+            console.log('未授权，重定向到登录页面');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+>>>>>>> database
             window.location.href = 'sign_in.html';
             return response;
         }
 
+<<<<<<< HEAD
+=======
+        // 记录错误响应
+        if (!response.ok) {
+            console.error(`API错误: ${response.status} ${response.statusText}`);
+            try {
+                const errorData = await response.json();
+                console.error('错误详情:', errorData);
+            } catch (e) {
+                console.error('无法解析错误详情');
+            }
+        }
+
+>>>>>>> database
         return response;
     } catch (error) {
         console.error('API请求错误:', error);

@@ -25,7 +25,11 @@ document.addEventListener('DOMContentLoaded', function(){
 function logout() {
     if (confirm('确定要退出登录吗？')) {
         const token = localStorage.getItem('token');
+<<<<<<< HEAD
         fetch('https://lifemaster-xxxx.onrender.com/api/auth/logout', {
+=======
+        fetch('http://localhost:5000/api/auth/logout', {
+>>>>>>> database
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
